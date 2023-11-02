@@ -40,11 +40,9 @@ app.get("/item/:slug", (req, res) => {
   res.end(`Item: ${slug}`);
 });
 
-
 // Here we are importing the index router
 // All the request are handled in the subsequent routes
 app.use("/api", require("../routes/index.routes"));
-
 
 app.use("*", (req, res, next) => {
   res.status(200).json({ message: "That's a 404 right here..." });
@@ -65,12 +63,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err, message: err.message });
 });
 
-
-
 app.listen(process.env.PORT, () =>
   console.log(`Server running on http://localhost:${process.env.PORT}`)
 );
-
 
 /**
  * Quick example of middlewares
@@ -84,8 +79,6 @@ app.listen(process.env.PORT, () =>
 // app.get("/test", modifytheRequest, (req, res, next) => {
 // 	res.json(req.cat);
 // });
-
-
 
 /**
  *
@@ -113,7 +106,6 @@ app.listen(process.env.PORT, () =>
  *
  * ? Error Handler
  */
-
 
 // function modifytheRequest(req, res, next) {
 // 	req.cat = { name: "Illiu" };
