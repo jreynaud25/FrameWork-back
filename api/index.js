@@ -22,7 +22,7 @@ app.use(
 
 app.get("/api", (req, res) => {
   const path = `/api/item/${v4()}`;
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET,OPTIONS,PATCH,DELETE,POST,PUT"
