@@ -20,8 +20,8 @@ app.use(
   })
 );
 
-app.get("/api", (req, res) => {
-  const path = `/api/item/${v4()}`;
+app.get("/", (req, res) => {
+  const path = `/item/${v4()}`;
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -35,10 +35,42 @@ app.get("/api", (req, res) => {
   res.end(`Hello! Go to item: <a href="${path}">${path}</a>`);
 });
 
-app.get("/api/item/:slug", (req, res) => {
+app.get("/item/:slug", (req, res) => {
   const { slug } = req.params;
   res.end(`Item: ${slug}`);
 });
+
+// Here we are importing the index router
+// All the request are handled in the subsequent routes
+app.use("/api", require("../routes/index.routes"));
+
+
+app.use("*", (req, res, next) => {
+  res.status(200).json({ message: "That's a 404 right here..." });
+});
+
+app.use((err, req, res, next) => {
+  console.log(err);
+  if (err.name === "CastError") {
+    return res.status(400).json({
+      message: "Cast error",
+      details: "Make sure you are sending correct informations",
+    });
+  }
+
+  if (err.name === "TokenExpiredError") {
+    return res.status(401).json({ message: "Token expired" });
+  }
+  res.status(500).json({ error: err, message: err.message });
+});
+
+
+
+app.listen(process.env.PORT, () =>
+  console.log(`Server running on http://localhost:${process.env.PORT}`)
+);
+
+
 /**
  * Quick example of middlewares
  */
@@ -52,9 +84,8 @@ app.get("/api/item/:slug", (req, res) => {
 // 	res.json(req.cat);
 // });
 
-// Here we are importing the index router
-// All the request are handled in the subsequent routes
-app.use("/api", require("../routes/index.routes"));
+
+
 /**
  *
  * ! Traffic handler
@@ -82,24 +113,6 @@ app.use("/api", require("../routes/index.routes"));
  * ? Error Handler
  */
 
-app.use("*", (req, res, next) => {
-  res.status(200).json({ message: "That's a 404 right here..." });
-});
-
-app.use((err, req, res, next) => {
-  console.log(err);
-  if (err.name === "CastError") {
-    return res.status(400).json({
-      message: "Cast error",
-      details: "Make sure you are sending correct informations",
-    });
-  }
-
-  if (err.name === "TokenExpiredError") {
-    return res.status(401).json({ message: "Token expired" });
-  }
-  res.status(500).json({ error: err, message: err.message });
-});
 
 // function modifytheRequest(req, res, next) {
 // 	req.cat = { name: "Illiu" };
@@ -110,7 +123,3 @@ app.use((err, req, res, next) => {
 // 	console.log(`Making a request on ${req.path}`);
 // 	next();
 // }
-
-app.listen(process.env.PORT, () =>
-  console.log(`Server running on http://localhost:${process.env.PORT}`)
-);
