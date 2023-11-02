@@ -11,7 +11,7 @@ const router = require("express").Router()
  *    - Create a router for every model that you do have.
  */
 router.get("/", (req, res) => {
-	res.json("We are live.")
+	res.json("We are live on /api.")
 })
 
 // Prefixing routes
