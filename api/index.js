@@ -1,7 +1,7 @@
 // require('dotenv/config')
 require("dotenv").config();
 // Connect to the database
-require("./config/dbConfig");
+require("../config/dbConfig");
 // We need express
 const express = require("express");
 const cors = require("cors");
@@ -34,7 +34,7 @@ app.use(
 
 // Here we are importing the index router
 // All the request are handled in the subsequent routes
-app.use("/api", require("./routes/index.routes"));
+app.use("/api", require("../routes/index.routes"));
 /**
  *
  * ! Traffic handler

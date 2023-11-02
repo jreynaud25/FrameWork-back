@@ -2,10 +2,10 @@
   "name": "w7d2",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "dev": "nodemon app.js",
-    "start": "node app.js",
+    "dev": "nodemon ./api/index.js",
+    "start": "node ./api/index.js",
     "seed": "node ./bin/student.seed.js"
   },
   "keywords": [],
