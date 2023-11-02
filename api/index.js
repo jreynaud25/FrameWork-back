@@ -5,6 +5,7 @@ require("../config/dbConfig");
 // We need express
 const express = require("express");
 const cors = require("cors");
+const { v4 } = require("uuid");
 // Need the app
 const app = express();
 // Configuration of the app
