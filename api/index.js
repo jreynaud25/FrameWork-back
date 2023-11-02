@@ -40,6 +40,7 @@ app.get("/item/:slug", (req, res) => {
   res.end(`Item: ${slug}`);
 });
 
+
 // Here we are importing the index router
 // All the request are handled in the subsequent routes
 app.use("/api", require("../routes/index.routes"));
