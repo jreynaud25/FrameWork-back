@@ -16,29 +16,29 @@ app.use(express.urlencoded({ extended: true }));
 // Authorize just our frontend
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    //origin: process.env.FRONTEND_URL,
   })
 );
 
-app.get("/", (req, res) => {
-  const path = `/item/${v4()}`;
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
-  );
-  res.setHeader("Content-Type", "text/html");
-  res.end(`Hello! Go to item: <a href="${path}">${path}</a>`);
-});
+// app.get("/", (req, res) => {
+//   const path = `/item/${v4()}`;
+//   res.setHeader("Access-Control-Allow-Origin", "*");
+//   res.setHeader(
+//     "Access-Control-Allow-Methods",
+//     "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+//   );
+//   res.setHeader(
+//     "Access-Control-Allow-Headers",
+//     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+//   );
+//   res.setHeader("Content-Type", "text/html");
+//   res.end(`Hello! Go to item: <a href="${path}">${path}</a>`);
+// });
 
-app.get("/item/:slug", (req, res) => {
-  const { slug } = req.params;
-  res.end(`Item: ${slug}`);
-});
+// app.get("/item/:slug", (req, res) => {
+//   const { slug } = req.params;
+//   res.end(`Item: ${slug}`);
+// });
 
 // Here we are importing the index router
 // All the request are handled in the subsequent routes
@@ -87,19 +87,19 @@ app.listen(process.env.PORT, () =>
  * ? HEALTHCHECK
  * GET /api
  *
- * ? STUDENT ROUTES
- * GET /api/student  List of all students
- * GET /api/student/:id   One student
- * POST /api/student   Create a student
- * PATCH /api/student/:id   Update a student
- * DELETE /api/student/:id   Delete a student
+ * ? CLIENTS ROUTES
+ * GET /api/client  List of all clients
+ * GET /api/client/:id   One client
+ * POST /api/client   Create a client
+ * PATCH /api/client/:id   Update a client
+ * DELETE /api/client/:id   Delete a client
  *
- * ? RUBBERDUCK ROUTES
- * GET /api/rubberduck
- * GET /api/rubberduck/:id
- * POST /api/rubberduck
- * PATCH /api/rubberduck/:id
- * DELETE /api/rubberduck/:id
+ * ? DESIGNS ROUTES
+ * GET /api/Designs
+ * GET /api/Designs/:id
+ * POST /api/Designs
+ * PATCH /api/Designs/:id
+ * DELETE /api/Designs/:id
  *
  * ? CATCH EM ALL (404)
  * ANY  respond with a 404
