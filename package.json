@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon ./api/index.js",
     "start": "node ./api/index.js",
-    "seed": "node ./bin/student.seed.js"
+    "seed": "node ./bin/client.seed.js"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +24,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.4.10",
     "nodemon": "^2.0.22"
   }
 }
