@@ -3,13 +3,13 @@ const User = require("../models/Client.model");
 
 async function isAuthenticated(req, res, next) {
   try {
-    console.log(req.headers);
+    //console.log(req.headers);
     let token = req.headers.authorization;
     if (!token) {
       return res.status(400).json({ message: "No token found" });
     }
     token = token.replace("Bearer ", "");
-    console.log(token);
+    //console.log(token);
     const payload = jwt.verify(token, process.env.TOKEN_SECRET, {
       algorithm: "HS256",
     });

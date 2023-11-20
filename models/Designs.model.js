@@ -15,11 +15,14 @@ const DesignSchema = new Schema(
     },
     picture: {
       type: String,
-      default: "    https://picsum.photos/200",
+      default: "https://picsum.photos/200",
     },
     figmaID: {
       type: String,
       required: true,
+    },
+    figmaNodeIDs: {
+      type: String,
     },
     creator: {
       type: Schema.Types.ObjectId,
@@ -32,6 +35,19 @@ const DesignSchema = new Schema(
         ref: "Client",
       },
     ],
+    asChanged: {
+      type: Boolean,
+      required: true,
+    },
+    textValues: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+    numberOfTextEntries: {
+      type: Number,
+    },
   },
   { timestamps: true }
 );
