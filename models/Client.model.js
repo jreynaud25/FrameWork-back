@@ -12,9 +12,13 @@ const ClientSchema = new Schema({
     type: String,
     select: false,
   },
+  email: {
+    type: String,
+    unique: true,
+  },
   status: {
     type: String,
-    enum: ["Client", "alumni", "admin"],
+    enum: ["Client", "admin"],
     default: "Client",
   },
 });

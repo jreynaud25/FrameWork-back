@@ -18,9 +18,9 @@ const isAdmin = require("../middlewares/isAdmin");
 router.post("/", async (req, res, next) => {
   try {
     // req.body contains the data sent via the request
-    console.log(req.body);
+    //console.log(req.body);
     const { pseudonyme, email, status } = req.body;
-    console.log(pseudonyme, email, status);
+    //console.log(pseudonyme, email, status);
     // res.send("youp");
     // return;
     if (!pseudonyme || !email) {
@@ -88,7 +88,7 @@ router.get("/:id", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   try {
     const deletedThing = await Client.findByIdAndDelete(req.params.id);
-    console.log(deletedThing);
+    //console.log(deletedThing);
     if (!deletedThing) {
       return res.json({
         message: `Could not match any document with the id ${req.params.id}`,
@@ -108,7 +108,7 @@ router.patch("/", isAuthenticated, async (req, res, next) => {
   try {
     const samePseudo = await Client.findOne({ pseudo: pseudonyme });
     const pseudoAgain = await Client.find({ pseudo: pseudonyme });
-    console.log("find:", pseudoAgain, "findOne:", samePseudo);
+    //console.log("find:", pseudoAgain, "findOne:", samePseudo);
     if (samePseudo) {
       return res
         .status(400)

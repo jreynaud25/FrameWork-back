@@ -30,7 +30,7 @@ router.post("/signup", async (req, res, next) => {
       //! Please don't forget me. 🥹
       password: hashedPass,
     });
-    console.log(createdUser);
+    //console.log(createdUser);
     res
       .status(201)
       .json({ message: "Welcome' aboard young pirate!", createdUser });
