@@ -19,13 +19,12 @@ router.post("/:id/changeApplied", async (req, res) => {
   try {
     const oneDesign = await Design.findOneAndUpdate(
       { figmaID: id },
-      { asChanged: false }
+      { asChanged: false, isOkToDownload: true }
     ).then((oneDesign) => {
       console.log(oneDesign);
       console.log(oneDesign.asChanged);
+      res.json(oneDesign);
     });
-
-    res.json(oneDesign);
   } catch (error) {
     console.log("erreur", error);
   }

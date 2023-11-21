@@ -39,6 +39,12 @@ const DesignSchema = new Schema(
       type: Boolean,
       required: true,
     },
+    isOkToDownload: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+
     textValues: [
       {
         type: String,

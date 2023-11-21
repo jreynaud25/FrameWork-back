@@ -15,9 +15,11 @@ router.get("/all", async (req, res, next) => {
 });
 
 router.get("/owned", async (req, res, next) => {
-  console.log("users asking ", req.user);
+  //console.log("user asking ", req.user);
   try {
-    const allDesigns = await Designs.find({ usedBy: req.user._id });
+    const allDesigns = await Designs.find({
+      $or: [{ usedBy: req.user._id }, { creator: req.user._id }],
+    });
     res.json(allDesigns);
   } catch (error) {
     next(error);
@@ -67,6 +69,15 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
       pictureUrl = req.file.path;
     }
 
+    console.log(
+      "bonjoru le default text on va verfier ton type",
+      req.body.defaultText,
+      typeof req.body.defaultText
+    );
+    const textValuesArray = req.body.defaultText.split(",");
+
+    console.log(textValuesArray);
+
     const createdDesigns = await Designs.create({
       name: req.body.name,
       picture: pictureUrl,
@@ -76,6 +87,7 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
       usedBy: foundUser,
       asChanged: false,
       numberOfTextEntries: req.body.numberOfTextEntries,
+      textValues: textValuesArray,
     });
 
     res.status(201).json(createdDesigns);
@@ -131,13 +143,33 @@ router.patch("/:id", async (req, res, next) => {
 
     const updatedDesign = await Designs.findByIdAndUpdate(
       id,
-      { textValues: req.body, asChanged: true },
-      { new: true },
+      { textValues: req.body, asChanged: true, isOkToDownload: false },
+      { new: true }
     );
     console.log(updatedDesign);
     console.log("the body", req.body, "the param", req.params);
 
-    res.json(true);
+    let numberOfTry = 0;
+    async function checkIsChangeDone() {
+      const isDesignEditionDone = await Designs.findById(id);
+
+      if (isDesignEditionDone.isOkToDownload) {
+        console.log("you can download", isDesignEditionDone);
+        await Designs.findByIdAndUpdate(id, { isOkToDownload: false });
+        res.json(isDesignEditionDone);
+      } else {
+        console.log("you cant download yet");
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        numberOfTry++;
+        if (numberOfTry < 11) {
+          checkIsChangeDone();
+        } else {
+          next();
+        }
+      }
+    }
+
+    checkIsChangeDone();
   } catch (error) {
     next(error);
   }
