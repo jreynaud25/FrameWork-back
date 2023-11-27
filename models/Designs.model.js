@@ -8,10 +8,6 @@ const DesignSchema = new Schema(
       trim: true,
       maxLength: 50,
       type: String,
-
-      // set: (value) => {
-      // 	return value[0].toUpperCase() + value.slice(1)
-      // },
     },
     picture: {
       type: String,

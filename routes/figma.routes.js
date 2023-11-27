@@ -43,9 +43,7 @@ router.get("/:id/change", async (req, res) => {
     console.log("erreur", error);
   }
 
-  // let changeMade = Math.random() < 0.5;
-  // console.log("change made", changeMade);
-  // res.json(changeMade);
+
 });
 
 module.exports = router;

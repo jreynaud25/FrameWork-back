@@ -6,10 +6,6 @@ const isAdmin = require("../middlewares/isAdmin");
 /**
  * ! This router is prefixed with /Client
  */
-// router.get("/:id", (req, res, next) => {
-// 	console.log(req.params, req.path, req.originalUrl);
-// 	res.send("Client route");
-// });
 
 // Let's crud it
 
@@ -17,12 +13,9 @@ const isAdmin = require("../middlewares/isAdmin");
 
 router.post("/", async (req, res, next) => {
   try {
-    // req.body contains the data sent via the request
-    //console.log(req.body);
+
     const { pseudonyme, email, status } = req.body;
-    //console.log(pseudonyme, email, status);
-    // res.send("youp");
-    // return;
+
     if (!pseudonyme || !email) {
       return res.status(400).json({ message: "Missing some informations" });
     }
