@@ -48,7 +48,6 @@ const DesignSchema = new Schema(
     textValues: [
       {
         type: String,
-        required: true,
       },
     ],
     numberOfTextEntries: {

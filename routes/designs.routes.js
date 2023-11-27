@@ -48,9 +48,10 @@ router.get("/owned", async (req, res, next) => {
 // 	}
 // })
 
-// We receive the infos of the duck in the req.body, and the id in the params.
+// We receive the infos of the design in the req.body, and the id in the params.
 
 router.post("/", uploader.single("picture"), async (req, res, next) => {
+  console.log("Le body du req", req.body);
   try {
     //console.log(req);
     // console.log(req.file);
@@ -74,9 +75,10 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
       req.body.defaultText,
       typeof req.body.defaultText
     );
-    const textValuesArray = req.body.defaultText.split(",");
-
-    console.log(textValuesArray);
+    // const textValuesArray = req.body.defaultText.split(",");
+    const textValuesArray = [];
+    // textValuesArray.length(req.body.numberOfTextEntries);
+    //console.log(textValuesArray);
 
     const createdDesigns = await Designs.create({
       name: req.body.name,
@@ -87,7 +89,10 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
       usedBy: foundUser,
       asChanged: false,
       numberOfTextEntries: req.body.numberOfTextEntries,
-      textValues: textValuesArray,
+      textValues: Array.apply(
+        null,
+        Array(parseInt(req.body.numberOfTextEntries))
+      ),
     });
 
     res.status(201).json(createdDesigns);
@@ -135,15 +140,18 @@ router.get("/:id", async (req, res, next) => {
 //   }
 // });
 
-router.patch("/:id", async (req, res, next) => {
-  console.log("i received a patch");
+router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
+  console.log("i received a patch", req.body);
   try {
     const { id } = req.params;
-    const { newText } = req.body;
+    let { newText } = req.body;
+    newText = newText.split(",");
+    console.log("newtext", newText);
+
 
     const updatedDesign = await Designs.findByIdAndUpdate(
       id,
-      { textValues: req.body, asChanged: true, isOkToDownload: false },
+      { textValues: newText, asChanged: true, isOkToDownload: false },
       { new: true }
     );
     console.log(updatedDesign);
