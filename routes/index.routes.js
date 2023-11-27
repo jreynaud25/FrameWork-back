@@ -1,9 +1,5 @@
 const isAuthenticated = require("../middlewares/isAuthenticated.js");
 const router = require("express").Router();
-// const express = require('express')
-// const router = express.Router()
-// const {Router} = require('express')
-// const router = Router()
 
 /**
  * We want to handle where the request wants to go,
@@ -13,10 +9,6 @@ const router = require("express").Router();
 router.get("/", (req, res) => {
   res.json("We are live on /api.");
 });
-
-// router.get("/figma", (req, res) => {
-// 	res.json("We are live on /api/figma.");
-//   });
 
 // Prefixing routes
 const ClientRoutes = require("./clients.routes.js");

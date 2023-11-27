@@ -53,18 +53,8 @@ router.get("/owned", async (req, res, next) => {
 router.post("/", uploader.single("picture"), async (req, res, next) => {
   console.log("Le body du req", req.body);
   try {
-    //console.log(req);
-    // console.log(req.file);
-    // console.log(req.user);
-    // console.log(req.figmaID);
-    // const foundUser = await Client.findById(req.params.creatorId)
-    // if (!foundUser) {
-    // 	return res.status(400).json({
-    // 		message: `Could not find any user with the id: ${req.params.creatorId}`,
-    // 	})
-    // }
+
     const foundUser = await Client.find({ username: req.body.client });
-    //console.log(foundUser);
     let pictureUrl;
     if (req.file) {
       pictureUrl = req.file.path;
@@ -77,8 +67,7 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
     );
     // const textValuesArray = req.body.defaultText.split(",");
     const textValuesArray = [];
-    // textValuesArray.length(req.body.numberOfTextEntries);
-    //console.log(textValuesArray);
+
 
     const createdDesigns = await Designs.create({
       name: req.body.name,
@@ -117,41 +106,24 @@ router.get("/:id", async (req, res, next) => {
 
 // Update Designs
 
-// router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
-//   try {
-//     const { id } = req.params;
-//     const { name } = req.body;
-
-//     let newPicture;
-//     if (req.file) {
-//       newPicture = req.file.path;
-//     }
-//     //console.log("in the route");
-//     //console.log(req.body, req.params);
-//     const updatedDesign = await Designs.findByIdAndUpdate(
-//       id,
-//       { name, picture: newPicture },
-//       { new: true }
-//     );
-//     //console.log(updatedDesign);
-//     res.json(updatedDesign);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
   console.log("i received a patch", req.body);
+
+  let newPicture;
+  if (req.file) {
+    console.log("there is a picture", req.file.path);
+    newPicture = req.file.path;
+  }
+
   try {
     const { id } = req.params;
     let { newText } = req.body;
     newText = newText.split(",");
     console.log("newtext", newText);
 
-
     const updatedDesign = await Designs.findByIdAndUpdate(
       id,
-      { textValues: newText, asChanged: true, isOkToDownload: false },
+      { textValues: newText, asChanged: true, isOkToDownload: false, picture: newPicture },
       { new: true }
     );
     console.log(updatedDesign);
