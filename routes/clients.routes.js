@@ -3,6 +3,8 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const Client = require("../models/Client.model");
 const { isValidObjectId } = require("mongoose");
 const isAdmin = require("../middlewares/isAdmin");
+const HTML_TEMPLATE = require("../config/mailTemplate");
+const SENDMAIL = require("../config/mail");
 /**
  * ! This router is prefixed with /Client
  */
@@ -12,26 +14,28 @@ const isAdmin = require("../middlewares/isAdmin");
 //! Create
 
 router.post("/", async (req, res, next) => {
+  console.log("on veut creer un user");
   try {
+    const { username, email, status } = req.body;
 
-    const { pseudonyme, email, status } = req.body;
-
-    if (!pseudonyme || !email) {
+    if (!username || !email) {
       return res.status(400).json({ message: "Missing some informations" });
     }
 
-    const samePseudo = await Client.findOne({ pseudo: pseudonyme });
-    if (samePseudo) {
+    const sameUsername = await Client.findOne({ username: username });
+    if (sameUsername) {
       return res
         .status(400)
-        .json({ message: `Pseudo: ${pseudonyme} is not available` });
+        .json({ message: `Pseudo: ${username} is not available` });
     }
 
     const createdClient = await Client.create({
-      pseudo: pseudonyme,
+      username: username,
       email,
       status,
     });
+
+    newUserEmail(email, username);
     res.status(201).json({
       message: "We've just created something!",
       Client: createdClient,
@@ -41,11 +45,31 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+function newUserEmail(email, username) {
+  const message = `Hi ! JRJRJ just created you an account that you can use ! <br /> 
+  <br /> 
+  The username is "${username}" <br /> 
+  <br /> 
+  Click on the link below to create you password <a href="www.google.fr">ici</a>`;
+  const options = {
+    from: "Framework. <frame-work@gmail.com>", // sender address
+    to: email, // receiver email
+    subject: "New account on Framework", // Subject line
+    text: message,
+    html: HTML_TEMPLATE(message),
+  };
+  // console.log(options);
+  SENDMAIL(options, (info) => {
+    console.log("Email sent successfully");
+    console.log("MESSAGE ID: ", info.messageId);
+  });
+}
 //! Read
 
 router.get("/", getAllClients);
 
 async function getAllClients(req, res, next) {
+  //console.log("getting all clients");
   try {
     // throw Error("hoho..");
     const allClients = await Client.find();

@@ -5,7 +5,7 @@ const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
 router.get("/all", async (req, res, next) => {
-  console.log("admins asking all desings", req.user);
+  //console.log("admins asking all desings", req.user);
   try {
     const allDesigns = await Designs.find();
     res.json(allDesigns);
@@ -53,7 +53,6 @@ router.get("/owned", async (req, res, next) => {
 router.post("/", uploader.single("picture"), async (req, res, next) => {
   console.log("Le body du req", req.body);
   try {
-
     const foundUser = await Client.find({ username: req.body.client });
     let pictureUrl;
     if (req.file) {
@@ -67,7 +66,6 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
     );
     // const textValuesArray = req.body.defaultText.split(",");
     const textValuesArray = [];
-
 
     const createdDesigns = await Designs.create({
       name: req.body.name,
@@ -123,7 +121,12 @@ router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
 
     const updatedDesign = await Designs.findByIdAndUpdate(
       id,
-      { textValues: newText, asChanged: true, isOkToDownload: false, picture: newPicture },
+      {
+        textValues: newText,
+        asChanged: true,
+        isOkToDownload: false,
+        picture: newPicture,
+      },
       { new: true }
     );
     console.log(updatedDesign);
@@ -156,20 +159,36 @@ router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
 });
 
 // Add some userId in the usedBy field
-router.patch("/:duckId/:clientId", async (req, res, next) => {
+// router.patch("/:duckId/:clientId", async (req, res, next) => {
+//   try {
+//     const { duckId, clientId } = req.params;
+//     const updatedDuck = await Designs.findByIdAndUpdate(
+//       duckId,
+//       {
+//         $push: { usedBy: clientId },
+//       },
+//       { new: true }
+//     );
+//     res.json(updatedDuck);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+//Delete design by ID
+router.delete("/:id", async (req, res, next) => {
+  console.log("shloud delete", req.params.id);
   try {
-    const { duckId, clientId } = req.params;
-    const updatedDuck = await Designs.findByIdAndUpdate(
-      duckId,
-      {
-        $push: { usedBy: clientId },
-      },
-      { new: true }
-    );
-    res.json(updatedDuck);
-  } catch (error) {
-    next(error);
+    const deletedThing = await Designs.findByIdAndDelete(req.params.id);
+    //console.log(deletedThing);
+    if (!deletedThing) {
+      return res.json({
+        message: `Could not match any document with the id ${req.params.id}`,
+      });
+    }
+    res.json({ message: `Deleted document with id ${req.params.id}` });
+  } catch (bryan) {
+    next(bryan);
   }
 });
-
 module.exports = router;
