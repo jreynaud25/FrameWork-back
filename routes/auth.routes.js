@@ -4,13 +4,28 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const salt = 10;
 const isAuthenticated = require("./../middlewares/isAuthenticated");
+const HTML_TEMPLATE = require("../config/mailTemplate");
+const SENDMAIL = require("../config/mail");
 
 router.post("/signup", async (req, res, next) => {
+  const length = 10; // Longueur du mot de passe souhaitée
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?"; // Caractères autorisés
+  let password = "";
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+
   try {
     // * Get the informations from the user input
-    const { username, password } = req.body;
+    const { username, email } = req.body;
     // * Check if the user already exist
     const foundUser = await User.findOne({ username });
+    if (!username || !email) {
+      return res.status(400).json({ message: "Missing some informations" });
+    }
     if (foundUser) {
       return res.status(400).json({ message: "User already exist." });
     }
@@ -27,10 +42,12 @@ router.post("/signup", async (req, res, next) => {
 
     const createdUser = await User.create({
       username,
+      email,
       //! Please don't forget me. 🥹
       password: hashedPass,
     });
     //console.log(createdUser);
+    newUserEmail(email, username, password);
     res
       .status(201)
       .json({ message: "Welcome' aboard young pirate!", createdUser });
@@ -38,6 +55,27 @@ router.post("/signup", async (req, res, next) => {
     next(error);
   }
 });
+
+function newUserEmail(email, username, password) {
+  const message = `Hi ! JRJRJ just created you an account that you can use ! <br /> 
+  <br /> 
+  The username is "${username}" <br /> 
+  The password is &quot;${password}&quot; <br />
+  <br /> 
+  Click on the link below to create you password <a href="https://www.google.fr">ici</a>`;
+  const options = {
+    from: "Framework. <frame-work@gmail.com>", // sender address
+    to: email, // receiver email
+    subject: "New account on Framework", // Subject line
+    text: message,
+    html: HTML_TEMPLATE(message),
+  };
+  // console.log(options);
+  SENDMAIL(options, (info) => {
+    console.log("Email sent successfully");
+    console.log("MESSAGE ID: ", info.messageId);
+  });
+}
 
 router.post("/login", async (req, res, next) => {
   try {
@@ -68,6 +106,43 @@ router.post("/login", async (req, res, next) => {
 
 router.get("/me", isAuthenticated, async (req, res, next) => {
   res.json(req.user);
+});
+
+//! Update
+
+router.patch("/update/:id", isAuthenticated, async (req, res, next) => {
+  console.log("Must patch", req.body, req.params.id);
+  const { username, password, email } = req.body;
+
+  console.log("bonjour", username, password, email);
+
+  const id = req.params.id;
+  try {
+    // Define the update fields
+    const updateFields = {};
+
+    if (email) {
+      updateFields.email = email;
+    }
+
+    if (password) {
+      console.log("il y a un mot de passe", password);
+      const generatedSalt = await bcrypt.genSalt(salt);
+      // Generate the hash for the provided password
+      const hashedPass = await bcrypt.hash(password, generatedSalt);
+      updateFields.password = hashedPass;
+    }
+
+    // Perform the update
+    const updatedClient = await User.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
+
+    console.log("le client update", updatedClient);
+    res.json(updatedClient);
+  } catch (error) {
+    res.json(error);
+  }
 });
 
 module.exports = router;
