@@ -20,6 +20,9 @@ const DesignSchema = new Schema(
     figmaNodeIDs: {
       type: String,
     },
+    figmaFrameID: {
+      type: String,
+    },
     creator: {
       type: Schema.Types.ObjectId,
       ref: "Client",
