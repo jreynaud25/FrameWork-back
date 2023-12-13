@@ -4,6 +4,9 @@ const Client = require("../models/Client.model");
 const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
+
+
+
 router.get("/all", async (req, res, next) => {
   //console.log("admins asking all desings", req.user);
   try {
@@ -187,8 +190,8 @@ router.delete("/:id", async (req, res, next) => {
       });
     }
     res.json({ message: `Deleted document with id ${req.params.id}` });
-  } catch (bryan) {
-    next(bryan);
+  } catch (error) {
+    next(error);
   }
 });
 module.exports = router;

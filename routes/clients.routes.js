@@ -103,6 +103,7 @@ router.get("/:id", async (req, res, next) => {
 
 //! Delete
 router.delete("/:id", async (req, res, next) => {
+  console.log("got deletion request");
   try {
     const deletedThing = await Client.findByIdAndDelete(req.params.id);
     //console.log(deletedThing);
