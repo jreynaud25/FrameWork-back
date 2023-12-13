@@ -7,7 +7,7 @@ const isAuthenticated = require("./../middlewares/isAuthenticated");
 const HTML_TEMPLATE = require("../config/mailTemplate");
 const SENDMAIL = require("../config/mail");
 
-router.post("/signup", async (req, res, next) => {
+function generatePassword() {
   const length = 10; // Longueur du mot de passe souhaitée
   const charset =
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?"; // Caractères autorisés
@@ -18,6 +18,10 @@ router.post("/signup", async (req, res, next) => {
     password += charset[randomIndex];
   }
 
+  return password;
+}
+router.post("/signup", async (req, res, next) => {
+  const password = generatePassword();
   try {
     // * Get the informations from the user input
     const { username, email } = req.body;
@@ -62,7 +66,7 @@ function newUserEmail(email, username, password) {
   The username is "${username}" <br /> 
   The password is &quot;${password}&quot; <br />
   <br /> 
-  Click on the link below to create you password <a href="https://www.google.fr">ici</a>`;
+  Click  <a href="https://frame-work.app">here</a> to connect`;
   const options = {
     from: "Framework. <frame-work@gmail.com>", // sender address
     to: email, // receiver email
@@ -99,6 +103,34 @@ router.post("/login", async (req, res, next) => {
     });
 
     res.json({ token: token });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/reset", async (req, res, next) => {
+  const { username } = req.body;
+  console.log("shloud reset password for", username);
+  try {
+    console.log("shloud reset password for", username);
+    const foundUser = await User.findOne({ username });
+    if (!foundUser) {
+      return res.status(400).json({ message: "User not found" });
+    }
+    const password = generatePassword();
+
+    console.log("update with this password", password);
+
+    const generatedSalt = await bcrypt.genSalt(salt);
+    const hashedPass = await bcrypt.hash(password, generatedSalt);
+
+    const newPassword = { password: hashedPass };
+    const updatedClient = await User.findOneAndUpdate({username}, newPassword, {
+      new: true,
+    });
+
+    newUserEmail(updatedClient.email, updatedClient.username, password);
+    res.json("coucou");
   } catch (error) {
     next(error);
   }
