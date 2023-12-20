@@ -85,6 +85,7 @@ router.post("/create", async (req, res) => {
       sections: req.body.sections,
       images: req.body.images,
       variables: req.body.variables,
+      usedBy: req.body.usedBy._id,
     });
 
     console.log("bonjour");
