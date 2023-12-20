@@ -4,13 +4,11 @@ const Client = require("../models/Client.model");
 const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
-
-
-
 router.get("/all", async (req, res, next) => {
-  //console.log("admins asking all desings", req.user);
+  //console.log("admin asking all desings", req.user);
   try {
     const allDesigns = await Designs.find();
+    console.log(allDesigns);
     res.json(allDesigns);
   } catch (error) {
     next(error);
@@ -107,28 +105,32 @@ router.get("/:id", async (req, res, next) => {
 
 // Update Designs
 
-router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
+router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
   console.log("i received a patch", req.body);
 
-  let newPicture;
-  if (req.file) {
-    console.log("there is a picture", req.file.path);
-    newPicture = req.file.path;
-  }
+  const uploadedImages = req.files.map((file) => {
+    return {
+      type: "IMAGE",
+      name: file.originalname, // Use "originalname" for the "name" field
+      url: file.path, // Update "url" with the Cloudinary URL
+    };
+  });
+
+  console.log("and a file", req.files);
 
   try {
     const { id } = req.params;
-    let { newText } = req.body;
-    newText = newText.split(",");
-    console.log("newtext", newText);
+    // let { newText } = req.body;
+    // newText = newText.split(",");
+    // console.log("newtext", newText);
 
     const updatedDesign = await Designs.findByIdAndUpdate(
       id,
       {
-        textValues: newText,
+        // textValues: newText,
         asChanged: true,
-        isOkToDownload: false,
-        picture: newPicture,
+        // isOkToDownload: false,
+        images: uploadedImages,
       },
       { new: true }
     );

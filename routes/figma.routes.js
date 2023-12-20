@@ -13,7 +13,7 @@ function increaseUptime() {
   checkIfDown();
   setTimeout(increaseUptime, 1000);
 }
-increaseUptime();
+//increaseUptime();
 
 function checkIfDown() {
   if (uptime == 10) {
@@ -49,7 +49,7 @@ router.post("/:id/changeApplied", async (req, res) => {
   console.log("merci la street");
   try {
     const oneDesign = await Design.findOneAndUpdate(
-      { figmaID: id },
+      { FigmaFileKey: id },
       { asChanged: false, isOkToDownload: true }
     ).then((oneDesign) => {
       console.log(oneDesign);
@@ -63,16 +63,40 @@ router.post("/:id/changeApplied", async (req, res) => {
 
 router.get("/:id/change", async (req, res) => {
   const { id } = req.params;
- // console.log("l'id", id);
   uptime = 0;
- // console.log("uptime", uptime);
   try {
-    const oneDesign = await Design.findOne({ figmaID: id });
-    // console.log(oneDesign);
-    //console.log(oneDesign.asChanged);
+    const oneDesign = await Design.findOne({ FigmaFileKey: id });
     res.json(oneDesign);
   } catch (error) {
     console.log("erreur", error);
+  }
+});
+
+router.post("/create", async (req, res) => {
+  console.log("Route pour creer depuis plugin", req.body);
+
+  console.log("les sections", req.body.sections);
+  try {
+    // Create a new Design document using the data from the request body
+    const newDesign = new Design({
+      FigmaName: req.body.FigmaName,
+      FigmaFileKey: req.body.FigmaFileKey,
+      FigmaId: req.body.FigmaId,
+      sections: req.body.sections,
+      images: req.body.images,
+      variables: req.body.variables,
+    });
+
+    console.log("bonjour");
+    // Save the new document to the database
+    const savedDesign = await newDesign.save();
+    console.log(savedDesign);
+    res.status(201).json(savedDesign);
+  } catch (error) {
+    console.error("Error creating design:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the design" });
   }
 });
 
