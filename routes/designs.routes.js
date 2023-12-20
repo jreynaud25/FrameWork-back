@@ -108,29 +108,42 @@ router.get("/:id", async (req, res, next) => {
 router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
   console.log("i received a patch", req.body);
 
-  const uploadedImages = req.files.map((file) => {
-    return {
-      type: "IMAGE",
-      name: file.originalname, // Use "originalname" for the "name" field
-      url: file.path, // Update "url" with the Cloudinary URL
-    };
-  });
-
-  console.log("and a file", req.files);
-
   try {
     const { id } = req.params;
     // let { newText } = req.body;
     // newText = newText.split(",");
     // console.log("newtext", newText);
+    const existingDesign = await Designs.findById(id);
+    const uploadedImages = req.files.map((file) => {
+      return {
+        type: "IMAGE",
+        name: file.originalname, // Use "originalname" for the "name" field
+        url: file.path, // Update "url" with the Cloudinary URL
+        asChanged: true,
+      };
+    });
 
+    // Combine existing images with new images
+    const updatedImages = existingDesign.images.map((existingImage) => {
+      const matchingUpload = uploadedImages.find((upload) => {
+        return upload.name === existingImage.name;
+      });
+
+      if (matchingUpload) {
+        // If there's a matching upload, use the new image
+        return matchingUpload;
+      } else {
+        // If there's no matching upload, keep the existing image
+        return existingImage;
+      }
+    });
     const updatedDesign = await Designs.findByIdAndUpdate(
       id,
       {
         // textValues: newText,
         asChanged: true,
         // isOkToDownload: false,
-        images: uploadedImages,
+        images: updatedImages,
       },
       { new: true }
     );

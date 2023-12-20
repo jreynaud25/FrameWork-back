@@ -13,6 +13,7 @@ const variableAndImagesSchema = new Schema({
   valuesByMode: Schema.Types.Mixed,
   id: String,
   url: String,
+  asChanged: { type: Boolean, default: false },
 });
 
 const sectionSchema = new Schema({
