@@ -106,7 +106,16 @@ router.get("/:id", async (req, res, next) => {
 // Update Designs
 
 router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
-  console.log("i received a patch", req.body);
+  console.log("i received a patch", req.body.newText[0]);
+
+  const newTextArray = JSON.parse(req.body.newText);
+
+  console.log("Check the type of", typeof newTextArray);
+  console.log(newTextArray);
+  newTextArray.forEach((item) => {
+    // Access the data in each item
+    console.log(item);
+  });
 
   try {
     const { id } = req.params;
@@ -140,14 +149,14 @@ router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
     const updatedDesign = await Designs.findByIdAndUpdate(
       id,
       {
-        // textValues: newText,
+        variables: newTextArray,
         asChanged: true,
         // isOkToDownload: false,
         images: updatedImages,
       },
       { new: true }
     );
-    console.log(updatedDesign);
+    // console.log(updatedDesign);
     console.log("the body", req.body, "the param", req.params);
 
     let numberOfTry = 0;
