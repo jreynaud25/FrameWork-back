@@ -12,33 +12,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Authorize everyone
-// app.use(cors())
+app.use(cors());
 // Authorize just our frontend
-app.use(
-  cors({
-    //origin: process.env.FRONTEND_URL,
-  })
-);
-
-// app.get("/", (req, res) => {
-//   const path = `/item/${v4()}`;
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-//   res.setHeader(
-//     "Access-Control-Allow-Methods",
-//     "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-//   );
-//   res.setHeader(
-//     "Access-Control-Allow-Headers",
-//     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
-//   );
-//   res.setHeader("Content-Type", "text/html");
-//   res.end(`Hello! Go to item: <a href="${path}">${path}</a>`);
-// });
-
-// app.get("/item/:slug", (req, res) => {
-//   const { slug } = req.params;
-//   res.end(`Item: ${slug}`);
-// });
+// app.use(
+//   cors({
+//     //origin: process.env.FRONTEND_URL,
+//   })
+// );
 
 // Here we are importing the index router
 // All the request are handled in the subsequent routes
@@ -70,15 +50,6 @@ app.listen(process.env.PORT, () =>
 /**
  * Quick example of middlewares
  */
-// app.use(logger);
-
-// app.get("/", (req, res, next) => {
-// 	res.json(req.cat);
-// });
-
-// app.get("/test", modifytheRequest, (req, res, next) => {
-// 	res.json(req.cat);
-// });
 
 /**
  *

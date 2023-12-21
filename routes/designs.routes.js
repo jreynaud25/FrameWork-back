@@ -5,9 +5,10 @@ const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
 router.get("/all", async (req, res, next) => {
-  console.log("admins asking all desings", req.user);
+  //console.log("admin asking all desings", req.user);
   try {
     const allDesigns = await Designs.find();
+    console.log(allDesigns);
     res.json(allDesigns);
   } catch (error) {
     next(error);
@@ -53,18 +54,7 @@ router.get("/owned", async (req, res, next) => {
 router.post("/", uploader.single("picture"), async (req, res, next) => {
   console.log("Le body du req", req.body);
   try {
-    //console.log(req);
-    // console.log(req.file);
-    // console.log(req.user);
-    // console.log(req.figmaID);
-    // const foundUser = await Client.findById(req.params.creatorId)
-    // if (!foundUser) {
-    // 	return res.status(400).json({
-    // 		message: `Could not find any user with the id: ${req.params.creatorId}`,
-    // 	})
-    // }
     const foundUser = await Client.find({ username: req.body.client });
-    //console.log(foundUser);
     let pictureUrl;
     if (req.file) {
       pictureUrl = req.file.path;
@@ -77,8 +67,6 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
     );
     // const textValuesArray = req.body.defaultText.split(",");
     const textValuesArray = [];
-    // textValuesArray.length(req.body.numberOfTextEntries);
-    //console.log(textValuesArray);
 
     const createdDesigns = await Designs.create({
       name: req.body.name,
@@ -117,44 +105,58 @@ router.get("/:id", async (req, res, next) => {
 
 // Update Designs
 
-// router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
-//   try {
-//     const { id } = req.params;
-//     const { name } = req.body;
+router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
+  console.log("i received a patch", req.body.newText[0]);
 
-//     let newPicture;
-//     if (req.file) {
-//       newPicture = req.file.path;
-//     }
-//     //console.log("in the route");
-//     //console.log(req.body, req.params);
-//     const updatedDesign = await Designs.findByIdAndUpdate(
-//       id,
-//       { name, picture: newPicture },
-//       { new: true }
-//     );
-//     //console.log(updatedDesign);
-//     res.json(updatedDesign);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+  const newTextArray = JSON.parse(req.body.newText);
 
-router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
-  console.log("i received a patch", req.body);
+  console.log("Check the type of", typeof newTextArray);
+  console.log(newTextArray);
+  newTextArray.forEach((item) => {
+    // Access the data in each item
+    console.log(item);
+  });
+
   try {
     const { id } = req.params;
-    let { newText } = req.body;
-    newText = newText.split(",");
-    console.log("newtext", newText);
+    // let { newText } = req.body;
+    // newText = newText.split(",");
+    // console.log("newtext", newText);
+    const existingDesign = await Designs.findById(id);
+    const uploadedImages = req.files.map((file) => {
+      return {
+        type: "IMAGE",
+        name: file.originalname, // Use "originalname" for the "name" field
+        url: file.path, // Update "url" with the Cloudinary URL
+        asChanged: true,
+      };
+    });
 
+    // Combine existing images with new images
+    const updatedImages = existingDesign.images.map((existingImage) => {
+      const matchingUpload = uploadedImages.find((upload) => {
+        return upload.name === existingImage.name;
+      });
 
+      if (matchingUpload) {
+        // If there's a matching upload, use the new image
+        return matchingUpload;
+      } else {
+        // If there's no matching upload, keep the existing image
+        return existingImage;
+      }
+    });
     const updatedDesign = await Designs.findByIdAndUpdate(
       id,
-      { textValues: newText, asChanged: true, isOkToDownload: false },
+      {
+        variables: newTextArray,
+        asChanged: true,
+        // isOkToDownload: false,
+        images: updatedImages,
+      },
       { new: true }
     );
-    console.log(updatedDesign);
+    // console.log(updatedDesign);
     console.log("the body", req.body, "the param", req.params);
 
     let numberOfTry = 0;
@@ -184,20 +186,36 @@ router.patch("/:id", uploader.single("picture"), async (req, res, next) => {
 });
 
 // Add some userId in the usedBy field
-router.patch("/:duckId/:clientId", async (req, res, next) => {
+// router.patch("/:duckId/:clientId", async (req, res, next) => {
+//   try {
+//     const { duckId, clientId } = req.params;
+//     const updatedDuck = await Designs.findByIdAndUpdate(
+//       duckId,
+//       {
+//         $push: { usedBy: clientId },
+//       },
+//       { new: true }
+//     );
+//     res.json(updatedDuck);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+//Delete design by ID
+router.delete("/:id", async (req, res, next) => {
+  console.log("shloud delete", req.params.id);
   try {
-    const { duckId, clientId } = req.params;
-    const updatedDuck = await Designs.findByIdAndUpdate(
-      duckId,
-      {
-        $push: { usedBy: clientId },
-      },
-      { new: true }
-    );
-    res.json(updatedDuck);
+    const deletedThing = await Designs.findByIdAndDelete(req.params.id);
+    //console.log(deletedThing);
+    if (!deletedThing) {
+      return res.json({
+        message: `Could not match any document with the id ${req.params.id}`,
+      });
+    }
+    res.json({ message: `Deleted document with id ${req.params.id}` });
   } catch (error) {
     next(error);
   }
 });
-
 module.exports = router;

@@ -3,64 +3,29 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const Client = require("../models/Client.model");
 const { isValidObjectId } = require("mongoose");
 const isAdmin = require("../middlewares/isAdmin");
+const HTML_TEMPLATE = require("../config/mailTemplate");
+const SENDMAIL = require("../config/mail");
 /**
  * ! This router is prefixed with /Client
  */
-// router.get("/:id", (req, res, next) => {
-// 	console.log(req.params, req.path, req.originalUrl);
-// 	res.send("Client route");
-// });
 
 // Let's crud it
-
-//! Create
-
-router.post("/", async (req, res, next) => {
-  try {
-    // req.body contains the data sent via the request
-    //console.log(req.body);
-    const { pseudonyme, email, status } = req.body;
-    //console.log(pseudonyme, email, status);
-    // res.send("youp");
-    // return;
-    if (!pseudonyme || !email) {
-      return res.status(400).json({ message: "Missing some informations" });
-    }
-
-    const samePseudo = await Client.findOne({ pseudo: pseudonyme });
-    if (samePseudo) {
-      return res
-        .status(400)
-        .json({ message: `Pseudo: ${pseudonyme} is not available` });
-    }
-
-    const createdClient = await Client.create({
-      pseudo: pseudonyme,
-      email,
-      status,
-    });
-    res.status(201).json({
-      message: "We've just created something!",
-      Client: createdClient,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
 //! Read
 
 router.get("/", getAllClients);
 
 async function getAllClients(req, res, next) {
+  //console.log("getting all clients");
   try {
-    // throw Error("hoho..");
-    const allClients = await Client.find();
+    const allClients = await Client.find({ status: { $ne: "admin" } });
     res.json(allClients);
   } catch (error) {
     next(error);
   }
 }
+
+//! Create
+
 
 // ! Read one
 // Preventing from entering a route if we don't have something similar to an ObjectId:
@@ -86,6 +51,7 @@ router.get("/:id", async (req, res, next) => {
 
 //! Delete
 router.delete("/:id", async (req, res, next) => {
+  console.log("got deletion request");
   try {
     const deletedThing = await Client.findByIdAndDelete(req.params.id);
     //console.log(deletedThing);
@@ -101,29 +67,6 @@ router.delete("/:id", async (req, res, next) => {
 });
 
 //! Update
-
-router.patch("/", isAuthenticated, async (req, res, next) => {
-  const { id } = req.params;
-  const { email, status, pseudonyme } = req.body;
-  try {
-    const samePseudo = await Client.findOne({ pseudo: pseudonyme });
-    const pseudoAgain = await Client.find({ pseudo: pseudonyme });
-    //console.log("find:", pseudoAgain, "findOne:", samePseudo);
-    if (samePseudo) {
-      return res
-        .status(400)
-        .json({ message: `Pseudo: ${pseudonyme} is not available` });
-    }
-    const updatedClient = await Client.findByIdAndUpdate(
-      req.user.id,
-      { email, status, pseudo: pseudonyme },
-      { new: true }
-    );
-    res.json(updatedClient);
-  } catch (error) {
-    next(error);
-  }
-});
 
 // the path is: PATCH /api/Client/status/:id
 router.patch(
