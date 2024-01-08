@@ -13,7 +13,7 @@ function increaseUptime() {
   checkIfDown();
   setTimeout(increaseUptime, 1000);
 }
-//increaseUptime();
+increaseUptime();
 
 function checkIfDown() {
   if (uptime == 10) {
@@ -37,10 +37,33 @@ function checkIfDown() {
   }
 }
 
+function sendErrorEmail() {
+  const message = `Hi ! It looks like an error occured ! <br /> 
+  <br /> 
+  
+  <br /> `;
+  const options = {
+    from: "Framework. <frame-work@gmail.com>", // sender address
+    to: "damien.audrezet@icloud.com", // receiver email
+    subject: "Probleme with backend/plugin", // Subject line
+    text: message,
+    html: HTML_TEMPLATE(message),
+  };
+  // console.log(options);
+  SENDMAIL(options, (info) => {
+    console.log("Email sent successfully");
+    console.log("MESSAGE ID: ", info.messageId);
+  });
+}
 // ROUTES
 
 router.get("/", (req, res) => {
   res.json("We are live on /figma now we talk.");
+});
+
+router.get("/error", (req, res) => {
+  sendErrorEmail();
+  res.json("Mail sent");
 });
 
 router.post("/:id/changeApplied", async (req, res) => {
@@ -62,13 +85,23 @@ router.post("/:id/changeApplied", async (req, res) => {
 });
 
 router.get("/:id/change", async (req, res) => {
+  console.log("Someone is trying to retrieve the change");
   const { id } = req.params;
   uptime = 0;
+
   try {
     const oneDesign = await Design.findOne({ FigmaFileKey: id });
-    res.json(oneDesign);
+
+    if (oneDesign) {
+      res.json(oneDesign);
+    } else {
+      // Design not found
+      res.status(404).json({ message: "Design not found" });
+    }
   } catch (error) {
-    console.log("erreur", error);
+    console.error("Error while retrieving the change:", error);
+    sendErrorEmail();
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
