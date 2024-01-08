@@ -2,12 +2,24 @@
 require("dotenv").config();
 // Connect to the database
 require("../config/dbConfig");
+
+//SSL conf
+const https = require("https");
+const fs = require("fs");
+
 // We need express
 const express = require("express");
 const cors = require("cors");
 const { v4 } = require("uuid");
 // Need the app
 const app = express();
+
+// const privateKey = fs.readFileSync(__dirname + "/ssl/server.key", "utf8");
+// const certificate = fs.readFileSync(__dirname + "/ssl/server.crt", "utf8");
+// const ca = fs.readFileSync(__dirname + "/ssl/root.crt", "utf8");
+
+//const credentials = { key: privateKey, cert: certificate, ca: ca };
+
 // Configuration of the app
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -42,6 +54,10 @@ app.use((err, req, res, next) => {
   }
   res.status(500).json({ error: err, message: err.message });
 });
+// const httpsServer = https.createServer(credentials, app);
+// httpsServer.listen(process.env.PORT, () =>
+//   console.log(`Server running on https://localhost:${process.env.PORT}`)
+// );
 
 app.listen(process.env.PORT, () =>
   console.log(`Server running on http://localhost:${process.env.PORT}`)
