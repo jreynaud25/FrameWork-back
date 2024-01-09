@@ -75,7 +75,7 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
       figmaID: req.body.figmaID,
       figmaNodeIDs: req.body.figmaNodeId,
       usedBy: foundUser,
-      asChanged: false,
+      hasChanged: false,
       numberOfTextEntries: req.body.numberOfTextEntries,
       textValues: Array.apply(
         null,
@@ -128,7 +128,7 @@ router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
         type: "IMAGE",
         name: file.originalname, // Use "originalname" for the "name" field
         url: file.path, // Update "url" with the Cloudinary URL
-        asChanged: true,
+        hasChanged: true,
       };
     });
 
@@ -150,7 +150,7 @@ router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
       id,
       {
         variables: newTextArray,
-        asChanged: true,
+        hasChanged: true,
         // isOkToDownload: false,
         images: updatedImages,
       },
