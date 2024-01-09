@@ -34,7 +34,7 @@ const DesignSchema = new Schema(
         ref: "Client",
       },
     ],
-    asChanged: {
+    hasChanged: {
       type: Boolean,
       required: true,
     },
