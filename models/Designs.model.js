@@ -13,7 +13,7 @@ const variableAndImagesSchema = new Schema({
   valuesByMode: Schema.Types.Mixed,
   id: String,
   url: String,
-  asChanged: { type: Boolean, default: false },
+  hasChanged: { type: Boolean, default: false },
 });
 
 const sectionSchema = new Schema({
@@ -41,7 +41,7 @@ const DesignSchema = new Schema({
       ref: "Client",
     },
   ],
-  asChanged: {
+  hasChanged: {
     type: Boolean,
     // required: true,
     default: false,
