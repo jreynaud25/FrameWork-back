@@ -24,7 +24,8 @@ router.post("/signup", async (req, res, next) => {
   const password = generatePassword();
   try {
     // * Get the informations from the user input
-    const { username, email } = req.body;
+    let { username, email } = req.body;
+    username = username.toLowerCase();
     // * Check if the user already exist
     const foundUser = await User.findOne({ username });
     if (!username || !email) {
@@ -83,7 +84,9 @@ function newUserEmail(email, username, password) {
 
 router.post("/login", async (req, res, next) => {
   try {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
+    username = username.toLowerCase();
+
     const foundUser = await User.findOne({ username }).select(
       "password username"
     );
@@ -109,7 +112,9 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.post("/reset", async (req, res, next) => {
-  const { username } = req.body;
+  let { username } = req.body;
+  username = username.toLowerCase();
+
   console.log("shloud reset password for", username);
   try {
     console.log("shloud reset password for", username);
@@ -125,9 +130,13 @@ router.post("/reset", async (req, res, next) => {
     const hashedPass = await bcrypt.hash(password, generatedSalt);
 
     const newPassword = { password: hashedPass };
-    const updatedClient = await User.findOneAndUpdate({username}, newPassword, {
-      new: true,
-    });
+    const updatedClient = await User.findOneAndUpdate(
+      { username },
+      newPassword,
+      {
+        new: true,
+      }
+    );
 
     newUserEmail(updatedClient.email, updatedClient.username, password);
     res.json("coucou");
@@ -144,7 +153,8 @@ router.get("/me", isAuthenticated, async (req, res, next) => {
 
 router.patch("/update/:id", isAuthenticated, async (req, res, next) => {
   console.log("Must patch", req.body, req.params.id);
-  const { username, password, email } = req.body;
+  let { username, password, email } = req.body;
+  username = username.toLowerCase();
 
   console.log("bonjour", username, password, email);
 
