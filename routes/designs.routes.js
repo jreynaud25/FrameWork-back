@@ -27,28 +27,6 @@ router.get("/owned", async (req, res, next) => {
   }
 });
 
-// We receive the Designs infos and the name of the creator in the req.body
-// router.post("/", async (req, res, next) => {
-// 	try {
-// 		console.log(req.body)
-// 		const { name, picture, creator } = req.body
-// 		const foundCreator = await Client.findOne({ pseudo: creator })
-// 		if (!foundCreator) {
-// 			return res
-// 				.status(400)
-// 				.json({ message: `Could not find any user with the name: ${creator}` })
-// 		}
-// 		const createdDuck = await Designs.create({
-// 			name,
-// 			picture,
-// 			creator: foundCreator._id,
-// 		})
-// 		res.status(201).json(createdDuck)
-// 	} catch (error) {
-// 		next(error)
-// 	}
-// })
-
 // We receive the infos of the design in the req.body, and the id in the params.
 
 router.post("/", uploader.single("picture"), async (req, res, next) => {
