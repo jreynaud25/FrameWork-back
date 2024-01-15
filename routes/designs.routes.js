@@ -4,6 +4,9 @@ const Client = require("../models/Client.model");
 const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
+const HTML_TEMPLATE = require("../config/mailTemplate");
+const SENDMAIL = require("../config/mail");
+
 router.get("/all", async (req, res, next) => {
   //console.log("admin asking all desings", req.user);
   try {
@@ -160,6 +163,36 @@ router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
     checkIsChangeDone();
   } catch (error) {
     next(error);
+  }
+});
+
+router.get("/notify/:id", async (req, res, next) => {
+  console.log("Bonjour la notify ");
+  try {
+    const { id } = req.params;
+    console.log(id);
+    const userToNotify = await Client.findById(id);
+    console.log(userToNotify);
+    const message = `Hi ! A new design is available is your account ! <br /> 
+<br /> 
+
+<br /> `;
+    const options = {
+      from: "Framework. <frame-work@gmail.com>", // sender address
+      to: userToNotify.email, // receiver email
+      subject: "New design available !", // Subject line
+      text: message,
+      html: HTML_TEMPLATE(message),
+    };
+    // console.log(options);
+    SENDMAIL(options, (info) => {
+      console.log("Email sent successfully");
+      console.log("MESSAGE ID: ", info.messageId);
+    });
+
+    res.json("sent");
+  } catch (error) {
+    res.json(error);
   }
 });
 
