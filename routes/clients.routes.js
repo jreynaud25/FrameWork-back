@@ -26,17 +26,16 @@ async function getAllClients(req, res, next) {
 
 //! Create
 
-
 // ! Read one
 // Preventing from entering a route if we don't have something similar to an ObjectId:
 // /:id([a-f0-9]{24})
 router.get("/:id", async (req, res, next) => {
-  // if (!isValidObjectId(req.params.id)) {
-  // 	console.log("Not happening?");
-  // 	return res
-  // 		.status(400)
-  // 		.json({ message: `The id ${req.params.id} is not valid` });
-  // }
+  if (!isValidObjectId(req.params.id)) {
+    console.log("Not happening?");
+    return res
+      .status(400)
+      .json({ message: `The id ${req.params.id} is not valid` });
+  }
   try {
     const oneClient = await Client.findById(req.params.id);
     res.json(oneClient);
