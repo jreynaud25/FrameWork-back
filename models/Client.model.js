@@ -15,6 +15,9 @@ const ClientSchema = new Schema({
   email: {
     type: String,
   },
+  pictureUrl: {
+    type: String,
+  },
   status: {
     type: String,
     enum: ["Client", "admin"],
