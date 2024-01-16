@@ -24,6 +24,15 @@ async function getAllClients(req, res, next) {
   }
 }
 
+router.get("/all", async (req, res, next) => {
+  try {
+    const allClients = await Client.find();
+    res.json(allClients);
+  } catch (error) {
+    next(error);
+  }
+});
+
 //! Create
 
 // ! Read one

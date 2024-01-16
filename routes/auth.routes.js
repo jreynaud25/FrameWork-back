@@ -37,7 +37,14 @@ router.post("/signup", uploader.single("pictures"), async (req, res, next) => {
   try {
     // * Get the informations from the user input
     let { username, email } = req.body;
-    username = username.toLowerCase().replace(/^"?(.*?)"?$/, "$1");
+    username = username
+      .toLowerCase()
+      .replace(/^"?(.*?)"?$/, "$1")
+      .replace(/\s/g, "");
+    email = email
+      .toLowerCase()
+      .replace(/^"?(.*?)"?$/, "$1")
+      .replace(/\s/g, "");
     // * Check if the user already exist
     const foundUser = await User.findOne({ username });
     if (!username || !email) {
