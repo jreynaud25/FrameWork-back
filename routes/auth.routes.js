@@ -6,6 +6,7 @@ const salt = 10;
 const isAuthenticated = require("./../middlewares/isAuthenticated");
 const HTML_TEMPLATE = require("../config/mailTemplate");
 const SENDMAIL = require("../config/mail");
+const uploader = require("../config/cloudinary");
 
 function generatePassword() {
   const length = 10; // Longueur du mot de passe souhaitée
@@ -20,12 +21,23 @@ function generatePassword() {
 
   return password;
 }
-router.post("/signup", async (req, res, next) => {
+router.post("/signup", uploader.single("pictures"), async (req, res, next) => {
+  console.log("Here is the req", req.body);
+  console.log("Here is the req", req.body.username);
+  console.log("Here is the req", req.body.email);
+  let pictureUrl;
+  if (req.file) {
+    pictureUrl = req.file.path;
+  }
+
+  console.log("on a une url", pictureUrl);
+
   const password = generatePassword();
+
   try {
     // * Get the informations from the user input
     let { username, email } = req.body;
-    username = username.toLowerCase();
+    username = username.toLowerCase().replace(/^"?(.*?)"?$/, "$1");
     // * Check if the user already exist
     const foundUser = await User.findOne({ username });
     if (!username || !email) {
@@ -48,6 +60,7 @@ router.post("/signup", async (req, res, next) => {
     const createdUser = await User.create({
       username,
       email,
+      pictureUrl,
       //! Please don't forget me. 🥹
       password: hashedPass,
     });
