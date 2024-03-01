@@ -4,6 +4,9 @@ const Client = require("../models/Client.model");
 const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 
+const HTML_TEMPLATE = require("../config/mailTemplate");
+const SENDMAIL = require("../config/mail");
+
 router.get("/all", async (req, res, next) => {
   //console.log("admin asking all desings", req.user);
   try {
@@ -26,28 +29,6 @@ router.get("/owned", async (req, res, next) => {
     next(error);
   }
 });
-
-// We receive the Designs infos and the name of the creator in the req.body
-// router.post("/", async (req, res, next) => {
-// 	try {
-// 		console.log(req.body)
-// 		const { name, picture, creator } = req.body
-// 		const foundCreator = await Client.findOne({ pseudo: creator })
-// 		if (!foundCreator) {
-// 			return res
-// 				.status(400)
-// 				.json({ message: `Could not find any user with the name: ${creator}` })
-// 		}
-// 		const createdDuck = await Designs.create({
-// 			name,
-// 			picture,
-// 			creator: foundCreator._id,
-// 		})
-// 		res.status(201).json(createdDuck)
-// 	} catch (error) {
-// 		next(error)
-// 	}
-// })
 
 // We receive the infos of the design in the req.body, and the id in the params.
 
@@ -99,6 +80,46 @@ router.get("/:id", async (req, res, next) => {
       .populate("usedBy");
     res.json(oneDesign);
   } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { thumbnailURL, selectedFrame } = req.body;
+    console.log("Bonjour, ", thumbnailURL, selectedFrame);
+    // Update the thumbnailURL based on the selectedFrame's frameId
+    const result = await Designs.findOneAndUpdate(
+      {
+        _id: id,
+        "sections.frames.frameId": selectedFrame.frameId,
+      },
+      {
+        $set: {
+          "sections.$.frames.$[elem].thumbnailURL": thumbnailURL,
+        },
+      },
+      {
+        arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+        new: true, // Return the updated document
+      }
+    );
+
+    if (result) {
+      console.log("ThumbnailURL updated successfully:", result);
+      res.json({
+        message: "ThumbnailURL updated successfully",
+        design: result,
+      });
+    } else {
+      console.log("Design not found or thumbnailURL not updated");
+      res
+        .status(404)
+        .json({ error: "Design not found or thumbnailURL not updated" });
+    }
+  } catch (error) {
+    console.error("Error updating thumbnailURL:", error);
     next(error);
   }
 });
@@ -182,6 +203,36 @@ router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
     checkIsChangeDone();
   } catch (error) {
     next(error);
+  }
+});
+
+router.get("/notify/:id", async (req, res, next) => {
+  console.log("Bonjour la notify ");
+  try {
+    const { id } = req.params;
+    console.log(id);
+    const userToNotify = await Client.findById(id);
+    console.log(userToNotify);
+    const message = `Hi ! A new design is available is your account ! <br /> 
+<br /> 
+
+<br /> `;
+    const options = {
+      from: "Framework. <frame-work@gmail.com>", // sender address
+      to: userToNotify.email, // receiver email
+      subject: "New design available !", // Subject line
+      text: message,
+      html: HTML_TEMPLATE(message),
+    };
+    // console.log(options);
+    SENDMAIL(options, (info) => {
+      console.log("Email sent successfully");
+      console.log("MESSAGE ID: ", info.messageId);
+    });
+
+    res.json("sent");
+  } catch (error) {
+    res.json(error);
   }
 });
 

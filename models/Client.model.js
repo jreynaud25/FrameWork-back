@@ -14,7 +14,9 @@ const ClientSchema = new Schema({
   },
   email: {
     type: String,
-    unique: true,
+  },
+  pictureUrl: {
+    type: String,
   },
   status: {
     type: String,
