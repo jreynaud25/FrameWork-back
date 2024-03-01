@@ -84,6 +84,46 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+router.post("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { thumbnailURL, selectedFrame } = req.body;
+    console.log("Bonjour, ", thumbnailURL, selectedFrame);
+    // Update the thumbnailURL based on the selectedFrame's frameId
+    const result = await Designs.findOneAndUpdate(
+      {
+        _id: id,
+        "sections.frames.frameId": selectedFrame.frameId,
+      },
+      {
+        $set: {
+          "sections.$.frames.$[elem].thumbnailURL": thumbnailURL,
+        },
+      },
+      {
+        arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+        new: true, // Return the updated document
+      }
+    );
+
+    if (result) {
+      console.log("ThumbnailURL updated successfully:", result);
+      res.json({
+        message: "ThumbnailURL updated successfully",
+        design: result,
+      });
+    } else {
+      console.log("Design not found or thumbnailURL not updated");
+      res
+        .status(404)
+        .json({ error: "Design not found or thumbnailURL not updated" });
+    }
+  } catch (error) {
+    console.error("Error updating thumbnailURL:", error);
+    next(error);
+  }
+});
+
 // Update Designs
 
 router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
