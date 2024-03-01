@@ -5,6 +5,7 @@ const frameSchema = new Schema({
   sectionName: String,
   frameName: String,
   frameId: String,
+  thumbnailURL: String,
 });
 
 const variableAndImagesSchema = new Schema({
