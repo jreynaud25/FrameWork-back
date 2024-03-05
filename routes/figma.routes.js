@@ -1,4 +1,6 @@
 const Design = require("../models/Designs.model");
+const Element = require("../models/Element.model"); // Make sure to adjust the path based on your project structure
+
 const router = require("express").Router();
 
 const HTML_TEMPLATE = require("../config/mailTemplate");
@@ -13,7 +15,7 @@ function increaseUptime() {
   checkIfDown();
   setTimeout(increaseUptime, 1000);
 }
-increaseUptime();
+//increaseUptime();
 
 function checkIfDown() {
   if (uptime == 10) {
@@ -188,6 +190,21 @@ router.post("/update", async (req, res) => {
     res.status(500).json({
       error: "Une erreur s'est produite lors de l'update du design",
     });
+  }
+});
+
+router.post("/createBrand", async (req, res) => {
+  try {
+    console.log("Received data from frontend:", req.body);
+
+    // Process the received data (save to database, perform actions, etc.)
+    const topLevelElements = req.body;
+    const savedElements = await Element.create(topLevelElements);
+
+    res.json({ success: true, message: "Data processed successfully" });
+  } catch (error) {
+    console.error("An error occurred while processing data:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
