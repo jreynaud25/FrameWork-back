@@ -18,7 +18,7 @@ function increaseUptime() {
 //increaseUptime();
 
 function checkIfDown() {
-  if (uptime == 10) {
+  if (uptime == 60) {
     console.log("Probleme with the plugin !!!!");
     const message = `Hi ! It looks like the plugin isn't sending request anymore ! <br /> 
   <br /> 
