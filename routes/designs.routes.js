@@ -236,23 +236,6 @@ router.get("/notify/:id", async (req, res, next) => {
   }
 });
 
-// Add some userId in the usedBy field
-// router.patch("/:duckId/:clientId", async (req, res, next) => {
-//   try {
-//     const { duckId, clientId } = req.params;
-//     const updatedDuck = await Designs.findByIdAndUpdate(
-//       duckId,
-//       {
-//         $push: { usedBy: clientId },
-//       },
-//       { new: true }
-//     );
-//     res.json(updatedDuck);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 //Delete design by ID
 router.delete("/:id", async (req, res, next) => {
   console.log("shloud delete", req.params.id);

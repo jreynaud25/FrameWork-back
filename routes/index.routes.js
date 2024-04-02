@@ -15,6 +15,7 @@ const ClientRoutes = require("./clients.routes.js");
 router.use("/client", ClientRoutes);
 router.use("/auth", require("./auth.routes.js"));
 router.use("/figma", require("./figma.routes.js"));
+router.use("/brand", require("./brand.routes.js"));
 router.use(isAuthenticated);
 //! We need to be logged in to access this part of the website
 router.use("/designs", require("./designs.routes.js"));
