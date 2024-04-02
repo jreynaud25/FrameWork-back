@@ -4,6 +4,7 @@ const elementSchema = new mongoose.Schema({
   name: String,
   type: String,
   characters: String,
+  nodeid: String,
   elements: { type: [Object], default: undefined }, // Set default to undefined
 });
 
