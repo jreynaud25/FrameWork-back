@@ -1,5 +1,6 @@
 const Design = require("../models/Designs.model");
 const Element = require("../models/Element.model"); // Make sure to adjust the path based on your project structure
+const Image = require("../models/BrandImages.model"); // Import your Mongoose model
 
 const router = require("express").Router();
 
@@ -64,7 +65,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/error", (req, res) => {
-  sendErrorEmail();
+  //sendErrorEmail();
   res.json("Mail sent");
 });
 
@@ -200,6 +201,32 @@ router.post("/createBrand", async (req, res) => {
     // Process the received data (save to database, perform actions, etc.)
     const topLevelElements = req.body;
     const savedElements = await Element.create(topLevelElements);
+
+    res.json({ success: true, message: "Data processed successfully" });
+  } catch (error) {
+    console.error("An error occurred while processing data:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.post("/:figmaId/gettingImagesURL", async (req, res) => {
+  const { figmaId } = req.params;
+
+  try {
+    console.log("For Figma ID:", figmaId);
+    console.log("Received data from frontend:", req.body);
+
+    // Process the received data and save to the database
+    const images = req.body;
+
+    // Create a new Image document
+    const newImage = new Image({
+      figmaId: figmaId,
+      images: images,
+    });
+
+    // Save the new image to the database
+    await newImage.save();
 
     res.json({ success: true, message: "Data processed successfully" });
   } catch (error) {
