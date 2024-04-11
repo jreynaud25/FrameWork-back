@@ -13,14 +13,14 @@ let uptime = 0;
 
 function increaseUptime() {
   uptime++;
-  checkIfDown();
+  //checkIfDown();
   setTimeout(increaseUptime, 1000);
 }
 //increaseUptime();
 
 function checkIfDown() {
   if (uptime == 60) {
-    console.log("Probleme with the plugin !!!!");
+    console.log("Problem with the plugin !!!!");
     const message = `Hi ! It looks like the plugin isn't sending request anymore ! <br /> 
   <br /> 
   
@@ -28,7 +28,7 @@ function checkIfDown() {
     const options = {
       from: "Framework. <frame-work@gmail.com>", // sender address
       to: "damien.audrezet@icloud.com", // receiver email
-      subject: "Probleme with plugin", // Subject line
+      subject: "Problem with plugin", // Subject line
       text: message,
       html: HTML_TEMPLATE(message),
     };
@@ -48,7 +48,7 @@ function sendErrorEmail() {
   const options = {
     from: "Framework. <frame-work@gmail.com>", // sender address
     to: "damien.audrezet@icloud.com", // receiver email
-    subject: "Probleme with backend/plugin", // Subject line
+    subject: "Problem with backend/plugin", // Subject line
     text: message,
     html: HTML_TEMPLATE(message),
   };
@@ -103,7 +103,7 @@ router.get("/:id/change", async (req, res) => {
     }
   } catch (error) {
     console.error("Error while retrieving the change:", error);
-    sendErrorEmail();
+    //sendErrorEmail();
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -217,11 +217,12 @@ router.post("/:figmaId/gettingImagesURL", async (req, res) => {
     console.log("Received data from frontend:", req.body);
 
     // Process the received data and save to the database
-    const images = req.body;
-
+    const images = req.body.images;
+    const FigmaName = req.body.FigmaName;
     // Create a new Image document
     const newImage = new Image({
       figmaId: figmaId,
+      FigmaName: FigmaName,
       images: images,
     });
 
