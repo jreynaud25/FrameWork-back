@@ -198,9 +198,18 @@ router.post("/createBrand", async (req, res) => {
   try {
     console.log("Received data from frontend:", req.body);
 
-    // Process the received data (save to database, perform actions, etc.)
-    const topLevelElements = req.body;
-    const savedElements = await Element.create(topLevelElements);
+    // Check if an element with the same figmaid exists
+    const existingElement = await Element.findOne({ FigmaId: req.body.FigmaId });
+
+    if (existingElement) {
+      // If an element with the same figmaid exists, update its data
+      await Element.updateOne({ FigmaId: req.body.FigmaId }, req.body);
+      console.log("Updated existing element with figmaid:", req.body.FigmaId);
+    } else {
+      // If not, create a new element with the provided data
+      const savedElement = await Element.create(req.body);
+      console.log("Created new element with figmaid:", req.body.FigmaId);
+    }
 
     res.json({ success: true, message: "Data processed successfully" });
   } catch (error) {
@@ -216,18 +225,24 @@ router.post("/:figmaId/gettingImagesURL", async (req, res) => {
     console.log("For Figma ID:", figmaId);
     console.log("Received data from frontend:", req.body);
 
-    // Process the received data and save to the database
-    const images = req.body.images;
-    const FigmaName = req.body.FigmaName;
-    // Create a new Image document
-    const newImage = new Image({
-      figmaId: figmaId,
-      FigmaName: FigmaName,
-      images: images,
-    });
+    // Check if an image document with the same figmaId exists
+    const existingImage = await Image.findOne({ figmaId });
 
-    // Save the new image to the database
-    await newImage.save();
+    if (existingImage) {
+      // If an image document with the same figmaId exists, update its data
+      await Image.updateOne({ figmaId }, { $set: { images: req.body.images } });
+      console.log("Updated existing image with figmaId:", figmaId);
+    } else {
+      // If not, create a new image document with the provided data
+      const newImage = new Image({
+        figmaId,
+        FigmaName: req.body.FigmaName,
+        images: req.body.images,
+      });
+      // Save the new image to the database
+      await newImage.save();
+      console.log("Created new image with figmaId:", figmaId);
+    }
 
     res.json({ success: true, message: "Data processed successfully" });
   } catch (error) {
@@ -235,5 +250,6 @@ router.post("/:figmaId/gettingImagesURL", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
 
 module.exports = router;
