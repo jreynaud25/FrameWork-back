@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 // Define the schema
 const imageSchema = new mongoose.Schema({
+  FigmaName: String,
   figmaId: {
     type: String,
     required: true,
