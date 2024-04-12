@@ -1,4 +1,7 @@
 const Design = require("../models/Designs.model");
+const Element = require("../models/Element.model"); // Make sure to adjust the path based on your project structure
+const Image = require("../models/BrandImages.model"); // Import your Mongoose model
+
 const router = require("express").Router();
 
 const HTML_TEMPLATE = require("../config/mailTemplate");
@@ -10,14 +13,14 @@ let uptime = 0;
 
 function increaseUptime() {
   uptime++;
-  checkIfDown();
+  //checkIfDown();
   setTimeout(increaseUptime, 1000);
 }
-increaseUptime();
+//increaseUptime();
 
 function checkIfDown() {
-  if (uptime == 10) {
-    console.log("Probleme with the plugin !!!!");
+  if (uptime == 60) {
+    console.log("Problem with the plugin !!!!");
     const message = `Hi ! It looks like the plugin isn't sending request anymore ! <br /> 
   <br /> 
   
@@ -25,7 +28,7 @@ function checkIfDown() {
     const options = {
       from: "Framework. <frame-work@gmail.com>", // sender address
       to: "damien.audrezet@icloud.com", // receiver email
-      subject: "Probleme with plugin", // Subject line
+      subject: "Problem with plugin", // Subject line
       text: message,
       html: HTML_TEMPLATE(message),
     };
@@ -45,7 +48,7 @@ function sendErrorEmail() {
   const options = {
     from: "Framework. <frame-work@gmail.com>", // sender address
     to: "damien.audrezet@icloud.com", // receiver email
-    subject: "Probleme with backend/plugin", // Subject line
+    subject: "Problem with backend/plugin", // Subject line
     text: message,
     html: HTML_TEMPLATE(message),
   };
@@ -62,7 +65,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/error", (req, res) => {
-  sendErrorEmail();
+  //sendErrorEmail();
   res.json("Mail sent");
 });
 
@@ -100,7 +103,7 @@ router.get("/:id/change", async (req, res) => {
     }
   } catch (error) {
     console.error("Error while retrieving the change:", error);
-    sendErrorEmail();
+    //sendErrorEmail();
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -190,5 +193,63 @@ router.post("/update", async (req, res) => {
     });
   }
 });
+
+router.post("/createBrand", async (req, res) => {
+  try {
+    console.log("Received data from frontend:", req.body);
+
+    // Check if an element with the same figmaid exists
+    const existingElement = await Element.findOne({ FigmaId: req.body.FigmaId });
+
+    if (existingElement) {
+      // If an element with the same figmaid exists, update its data
+      await Element.updateOne({ FigmaId: req.body.FigmaId }, req.body);
+      console.log("Updated existing element with figmaid:", req.body.FigmaId);
+    } else {
+      // If not, create a new element with the provided data
+      const savedElement = await Element.create(req.body);
+      console.log("Created new element with figmaid:", req.body.FigmaId);
+    }
+
+    res.json({ success: true, message: "Data processed successfully" });
+  } catch (error) {
+    console.error("An error occurred while processing data:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.post("/:figmaId/gettingImagesURL", async (req, res) => {
+  const { figmaId } = req.params;
+
+  try {
+    console.log("For Figma ID:", figmaId);
+    console.log("Received data from frontend:", req.body);
+
+    // Check if an image document with the same figmaId exists
+    const existingImage = await Image.findOne({ figmaId });
+
+    if (existingImage) {
+      // If an image document with the same figmaId exists, update its data
+      await Image.updateOne({ figmaId }, { $set: { images: req.body.images } });
+      console.log("Updated existing image with figmaId:", figmaId);
+    } else {
+      // If not, create a new image document with the provided data
+      const newImage = new Image({
+        figmaId,
+        FigmaName: req.body.FigmaName,
+        images: req.body.images,
+      });
+      // Save the new image to the database
+      await newImage.save();
+      console.log("Created new image with figmaId:", figmaId);
+    }
+
+    res.json({ success: true, message: "Data processed successfully" });
+  } catch (error) {
+    console.error("An error occurred while processing data:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 
 module.exports = router;
