@@ -11,7 +11,8 @@ const elementSchema = new mongoose.Schema({
 const brandSchema = new mongoose.Schema({
   FigmaName: String,
   FigmaId: { type: String, unique: true },
-  elements: { type: [elementSchema], default: undefined }, // Set default to undefined
+  elements: { type: [elementSchema], default: undefined },
+  isPrivate: Boolean, // Set default to undefined
 });
 
 const Element = mongoose.model("Element", brandSchema);

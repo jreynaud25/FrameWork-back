@@ -13,13 +13,13 @@ let uptime = 0;
 
 function increaseUptime() {
   uptime++;
-  //checkIfDown();
+  checkIfDown();
   setTimeout(increaseUptime, 1000);
 }
-//increaseUptime();
+increaseUptime();
 
 function checkIfDown() {
-  if (uptime == 60) {
+  if (uptime == 600) {
     console.log("Problem with the plugin !!!!");
     const message = `Hi ! It looks like the plugin isn't sending request anymore ! <br /> 
   <br /> 
