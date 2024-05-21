@@ -13,13 +13,16 @@ let uptime = 0;
 
 function increaseUptime() {
   uptime++;
+  if (uptime % 10 == 0) {
+    console.log("10seconds without request from plugin");
+  }
   checkIfDown();
   setTimeout(increaseUptime, 1000);
 }
 increaseUptime();
 
 function checkIfDown() {
-  if (uptime == 600) {
+  if (uptime == 60) {
     console.log("Problem with the plugin !!!!");
     const message = `Hi ! It looks like the plugin isn't sending request anymore ! <br /> 
   <br /> 
@@ -28,7 +31,45 @@ function checkIfDown() {
     const options = {
       from: "Framework. <frame-work@gmail.com>", // sender address
       to: "damien.audrezet@icloud.com", // receiver email
-      subject: "Problem with plugin", // Subject line
+      subject: "Problem with plugin 1minutes down", // Subject line
+      text: message,
+      html: HTML_TEMPLATE(message),
+    };
+    // console.log(options);
+    SENDMAIL(options, (info) => {
+      console.log("Email sent successfully");
+      console.log("MESSAGE ID: ", info.messageId);
+    });
+  }
+  if (uptime == 600) {
+    console.log("Problem with the plugin !!!!");
+    const message = `Hi ! It looks like the plugin isn't sending request anymore it's been 10 minutes ! <br /> 
+  <br /> 
+  
+  <br /> `;
+    const options = {
+      from: "Framework. <frame-work@gmail.com>", // sender address
+      to: "damien.audrezet@icloud.com", // receiver email
+      subject: "Problem with plugin 10minutes", // Subject line
+      text: message,
+      html: HTML_TEMPLATE(message),
+    };
+    // console.log(options);
+    SENDMAIL(options, (info) => {
+      console.log("Email sent successfully");
+      console.log("MESSAGE ID: ", info.messageId);
+    });
+  }
+  if (uptime == 1800) {
+    console.log("Problem with the plugin !!!!");
+    const message = `Hi ! It looks like the plugin isn't sending request anymore it's been 30 minutes ! <br /> 
+  <br /> 
+  
+  <br /> `;
+    const options = {
+      from: "Framework. <frame-work@gmail.com>", // sender address
+      to: "damien.audrezet@icloud.com", // receiver email
+      subject: "Problem with plugin LAST WARNING", // Subject line
       text: message,
       html: HTML_TEMPLATE(message),
     };
@@ -199,7 +240,9 @@ router.post("/createBrand", async (req, res) => {
     console.log("Received data from frontend:", req.body);
 
     // Check if an element with the same figmaid exists
-    const existingElement = await Element.findOne({ FigmaId: req.body.FigmaId });
+    const existingElement = await Element.findOne({
+      FigmaId: req.body.FigmaId,
+    });
 
     if (existingElement) {
       // If an element with the same figmaid exists, update its data
@@ -250,6 +293,5 @@ router.post("/:figmaId/gettingImagesURL", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
-
 
 module.exports = router;
