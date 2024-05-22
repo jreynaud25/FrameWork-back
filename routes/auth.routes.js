@@ -11,7 +11,7 @@ const uploader = require("../config/cloudinary");
 function generatePassword() {
   const length = 10; // Longueur du mot de passe souhaitée
   const charset =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?"; // Caractères autorisés
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&_-=?"; // Caractères autorisés
   let password = "";
 
   for (let i = 0; i < length; i++) {
@@ -21,7 +21,7 @@ function generatePassword() {
 
   return password;
 }
-router.post("/signup", uploader.single("pictures"), async (req, res, next) => {
+router.post("/signup", uploader.single("picture"), async (req, res, next) => {
   console.log("Here is the req", req.body);
   console.log("Here is the req", req.body.username);
   console.log("Here is the req", req.body.email);

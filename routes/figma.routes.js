@@ -13,7 +13,7 @@ let uptime = 0;
 
 function increaseUptime() {
   uptime++;
-  if (uptime % 10 == 0) {
+  if (uptime != 0 && uptime % 10 == 0) {
     console.log("10seconds without request from plugin");
   }
   checkIfDown();
