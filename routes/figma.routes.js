@@ -1,6 +1,9 @@
 const Design = require("../models/Designs.model");
 const Element = require("../models/Element.model"); // Make sure to adjust the path based on your project structure
 const Image = require("../models/BrandImages.model"); // Import your Mongoose model
+const uploader = require("../config/cloudinary");
+//const cloudinary = require("../config/cloudinary");
+const cloudinary = require("cloudinary").v2;
 
 const router = require("express").Router();
 
@@ -12,7 +15,7 @@ const SENDMAIL = require("../config/mail");
 let uptime = 0;
 
 function increaseUptime() {
-  uptime++;
+  //uptime++;
   if (uptime != 0 && uptime % 10 == 0) {
     console.log("10seconds without request from plugin");
   }
@@ -294,4 +297,27 @@ router.post("/:figmaId/gettingImagesURL", async (req, res) => {
   }
 });
 
+router.post("/uploadImgURL", async (req, res, next) => {
+  // Array of image URLs for testing
+  const imageUrls = req.body;
+  // const imageUrls = [
+  //   "https://images.vat19.com/covers/large/mini-circus-clown-bike.jpg",
+  //   "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/a7194436-6812-4f51-887d-fb2f8529fef2",
+  // ];
+  try {
+    // Use Promise.all to upload multiple images concurrently
+    const uploadPromises = imageUrls.map((url) =>
+      cloudinary.uploader.upload(url, {
+        folder: "framework",
+        allowed_formats: ["jpg", "png", "gif", "webp", "jpeg"],
+      })
+    );
+
+    const results = await Promise.all(uploadPromises);
+
+    res.json({ success: true, results });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 module.exports = router;
