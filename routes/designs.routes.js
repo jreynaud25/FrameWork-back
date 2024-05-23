@@ -11,7 +11,7 @@ router.get("/all", async (req, res, next) => {
   //console.log("admin asking all desings", req.user);
   try {
     const allDesigns = await Designs.find();
-    console.log(allDesigns);
+    //console.log(allDesigns);
     res.json(allDesigns);
   } catch (error) {
     next(error);
@@ -33,7 +33,7 @@ router.get("/owned", async (req, res, next) => {
 // We receive the infos of the design in the req.body, and the id in the params.
 
 router.post("/", uploader.single("picture"), async (req, res, next) => {
-  console.log("Le body du req", req.body);
+  //console.log("Le body du req", req.body);
   try {
     const foundUser = await Client.find({ username: req.body.client });
     let pictureUrl;
@@ -41,11 +41,11 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
       pictureUrl = req.file.path;
     }
 
-    console.log(
-      "bonjoru le default text on va verfier ton type",
-      req.body.defaultText,
-      typeof req.body.defaultText
-    );
+    // console.log(
+    //   "bonjoru le default text on va verfier ton type",
+    //   req.body.defaultText,
+    //   typeof req.body.defaultText
+    // );
     // const textValuesArray = req.body.defaultText.split(",");
     const textValuesArray = [];
 
@@ -128,14 +128,14 @@ router.post("/:id", async (req, res, next) => {
 
 router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
   console.log("i received a patch", req.body.newText[0]);
-
+  console.log("req.files", req.files);
   const newTextArray = JSON.parse(req.body.newText);
 
-  console.log("Check the type of", typeof newTextArray);
-  console.log(newTextArray);
+  //console.log("Check the type of", typeof newTextArray);
+  //console.log(newTextArray);
   newTextArray.forEach((item) => {
     // Access the data in each item
-    console.log(item);
+    //console.log(item);
   });
 
   try {
@@ -178,14 +178,14 @@ router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
       { new: true }
     );
     // console.log(updatedDesign);
-    console.log("the body", req.body, "the param", req.params);
+    //console.log("the body", req.body, "the param", req.params);
 
     let numberOfTry = 0;
     async function checkIsChangeDone() {
       const isDesignEditionDone = await Designs.findById(id);
 
       if (isDesignEditionDone.isOkToDownload) {
-        console.log("you can download", isDesignEditionDone);
+        //console.log("you can download", isDesignEditionDone);
         await Designs.findByIdAndUpdate(id, { isOkToDownload: false });
         res.json(isDesignEditionDone);
       } else {

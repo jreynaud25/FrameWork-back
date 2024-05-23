@@ -2,7 +2,7 @@ const Design = require("../models/Designs.model");
 const Element = require("../models/Element.model"); // Make sure to adjust the path based on your project structure
 const Image = require("../models/BrandImages.model"); // Import your Mongoose model
 const uploader = require("../config/cloudinary");
-//const cloudinary = require("../config/cloudinary");
+const uploadImagesToCloudinary = require("../middlewares/uploadImagesToCloudinary");
 const cloudinary = require("cloudinary").v2;
 
 const router = require("express").Router();
@@ -132,7 +132,7 @@ router.post("/:id/changeApplied", async (req, res) => {
 });
 
 router.get("/:id/change", async (req, res) => {
-  console.log("Someone is trying to retrieve the change");
+  // console.log("Someone is trying to retrieve the change");
   const { id } = req.params;
   uptime = 0;
 
@@ -152,10 +152,10 @@ router.get("/:id/change", async (req, res) => {
   }
 });
 
-router.post("/create", async (req, res) => {
-  console.log("Route pour creer depuis plugin", req.body);
-  console.log("le figma file key", req.body.FigmaFileKey);
-
+router.post("/create", uploadImagesToCloudinary, async (req, res) => {
+  //console.log("Route pour creer depuis plugin", req.body);
+  //console.log("le figma file key", req.body.FigmaFileKey);
+  console.log("After middleware, here is the ", req.body);
   try {
     // Vérifier si un design avec le même FigmaFileKey existe déjà
     const existingDesign = await Design.findOne({
@@ -299,11 +299,18 @@ router.post("/:figmaId/gettingImagesURL", async (req, res) => {
 
 router.post("/uploadImgURL", async (req, res, next) => {
   // Array of image URLs for testing
-  const imageUrls = req.body;
-  // const imageUrls = [
-  //   "https://images.vat19.com/covers/large/mini-circus-clown-bike.jpg",
-  //   "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/a7194436-6812-4f51-887d-fb2f8529fef2",
-  // ];
+  //let imageUrls = req.body;
+  let imageUrls = [
+    "https://images.vat19.com/covers/large/mini-circus-clown-bike.jpg",
+    "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/a7194436-6812-4f51-887d-fb2f8529fef2",
+  ];
+  // let imageUrls =
+  //   "https://images.vat19.com/covers/large/mini-circus-clown-bike.jpg";
+
+  // Normalize the input to always be an array
+  if (!Array.isArray(imageUrls)) {
+    imageUrls = [imageUrls];
+  }
   try {
     // Use Promise.all to upload multiple images concurrently
     const uploadPromises = imageUrls.map((url) =>
