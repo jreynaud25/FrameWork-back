@@ -3,12 +3,14 @@ const Element = require("../models/Element.model"); // Make sure to adjust the p
 const Image = require("../models/BrandImages.model"); // Import your Mongoose model
 const uploader = require("../config/cloudinary");
 const uploadImagesToCloudinary = require("../middlewares/uploadImagesToCloudinary");
+const checkExistingDesign = require("../middlewares/checkExistingDesign");
 const cloudinary = require("cloudinary").v2;
 
 const router = require("express").Router();
 
 const HTML_TEMPLATE = require("../config/mailTemplate");
 const SENDMAIL = require("../config/mail");
+const uploadImagesToCloudinaryForBrand = require("../middlewares/uploadImagesToCloudinaryForBrand");
 
 // UPTIME
 
@@ -152,50 +154,40 @@ router.get("/:id/change", async (req, res) => {
   }
 });
 
-router.post("/create", uploadImagesToCloudinary, async (req, res) => {
-  //console.log("Route pour creer depuis plugin", req.body);
-  //console.log("le figma file key", req.body.FigmaFileKey);
-  console.log("After middleware, here is the ", req.body);
-  try {
-    // Vérifier si un design avec le même FigmaFileKey existe déjà
-    const existingDesign = await Design.findOne({
-      FigmaFileKey: req.body.FigmaFileKey,
-    });
+router.post(
+  "/create",
+  checkExistingDesign,
+  uploadImagesToCloudinary,
+  async (req, res) => {
+    //console.log("Route pour creer depuis plugin", req.body);
+    //console.log("le figma file key", req.body.FigmaFileKey);
+    //console.log("After middleware, here is the ", req.body);
+    try {
+      // Créer un nouveau Design document en utilisant les données du corps de la requête
+      const newDesign = new Design({
+        FigmaName: req.body.FigmaName,
+        FigmaFileKey: req.body.FigmaFileKey,
+        FigmaId: req.body.FigmaId,
+        sections: req.body.sections,
+        images: req.body.images,
+        variables: req.body.variables,
+        usedBy: req.body.usedBy._id,
+      });
 
-    // console.log(existingDesign);
-    if (existingDesign) {
-      // Un design avec le même FigmaFileKey existe déjà
+      console.log("bonjour");
 
-      console.log("un design existe deja");
-      return res.status(400).json({
-        error: "Un design avec le même FigmaFileKey existe déjà.",
+      // Sauvegarder le nouveau document dans la base de données
+      const savedDesign = await newDesign.save();
+      console.log(savedDesign);
+      res.status(201).json(savedDesign);
+    } catch (error) {
+      console.error("Error creating design:", error);
+      res.status(500).json({
+        error: "Une erreur s'est produite lors de la création du design",
       });
     }
-
-    // Créer un nouveau Design document en utilisant les données du corps de la requête
-    const newDesign = new Design({
-      FigmaName: req.body.FigmaName,
-      FigmaFileKey: req.body.FigmaFileKey,
-      FigmaId: req.body.FigmaId,
-      sections: req.body.sections,
-      images: req.body.images,
-      variables: req.body.variables,
-      usedBy: req.body.usedBy._id,
-    });
-
-    console.log("bonjour");
-
-    // Sauvegarder le nouveau document dans la base de données
-    const savedDesign = await newDesign.save();
-    console.log(savedDesign);
-    res.status(201).json(savedDesign);
-  } catch (error) {
-    console.error("Error creating design:", error);
-    res.status(500).json({
-      error: "Une erreur s'est produite lors de la création du design",
-    });
   }
-});
+);
 
 router.post("/update", async (req, res) => {
   console.log("Route pour creer depuis plugin", req.body);
@@ -264,12 +256,11 @@ router.post("/createBrand", async (req, res) => {
   }
 });
 
-router.post("/:figmaId/gettingImagesURL", async (req, res) => {
+router.post("/:figmaId/gettingImagesURL",uploadImagesToCloudinaryForBrand, async (req, res) => {
   const { figmaId } = req.params;
 
   try {
     console.log("For Figma ID:", figmaId);
-    console.log("Received data from frontend:", req.body);
 
     // Check if an image document with the same figmaId exists
     const existingImage = await Image.findOne({ figmaId });

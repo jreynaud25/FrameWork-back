@@ -41,7 +41,7 @@ const uploadImagesToCloudinary = async (req, res, next) => {
 
     // Use Promise.all to upload multiple images concurrently
     const uploadPromises = Object.entries(imageUrls).map(([id, url]) => {
-      const imageName = id.replace(":", "_"); // Replace ':' with '_' to ensure valid public_id
+      //const imageName = id.replace(":", "_"); // Replace ':' with '_' to ensure valid public_id
       return cloudinary.uploader
         .upload(url, {
           folder: "framework",
