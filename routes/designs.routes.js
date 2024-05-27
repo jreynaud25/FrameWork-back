@@ -3,6 +3,7 @@ const Designs = require("../models/Designs.model");
 const Client = require("../models/Client.model");
 const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
+const cloudinary = require("cloudinary").v2;
 
 const HTML_TEMPLATE = require("../config/mailTemplate");
 const SENDMAIL = require("../config/mail");
@@ -40,13 +41,6 @@ router.post("/", uploader.single("picture"), async (req, res, next) => {
     if (req.file) {
       pictureUrl = req.file.path;
     }
-
-    // console.log(
-    //   "bonjoru le default text on va verfier ton type",
-    //   req.body.defaultText,
-    //   typeof req.body.defaultText
-    // );
-    // const textValuesArray = req.body.defaultText.split(",");
     const textValuesArray = [];
 
     const createdDesigns = await Designs.create({
@@ -84,30 +78,92 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+router.patch("/:id/archiveURL", async (req, res) => {
+  const { id } = req.params;
+  const { selectedFrame, archiveURL } = req.body;
+
+  console.log("salut je vais supprimer", archiveURL, selectedFrame, id);
+  const updatedDesign = await Designs.findOneAndUpdate(
+    {
+      _id: id,
+      "sections.frames.frameId": selectedFrame.frameId,
+    },
+    {
+      $pull: {
+        "sections.$.frames.$[elem].archiveURL": archiveURL,
+      },
+    },
+    {
+      arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+      new: true, // Return the updated document
+    }
+  );
+
+  //console.log("Kikou", updatedDesign);
+  res.json("salut");
+});
+
 router.post("/:id", async (req, res, next) => {
+  const currentDate = new Date();
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  let dateString = currentDate.toLocaleDateString("en-US", options); // Convert date to string in ISO format
+  dateString = dateString.replace(/\//g, "-");
+
   try {
     const { id } = req.params;
-    const { thumbnailURL, selectedFrame } = req.body;
+    const { thumbnailURL, selectedFrame, archive } = req.body;
     console.log("Bonjour, ", thumbnailURL, selectedFrame);
+    console.log("selected", selectedFrame.sectionName, selectedFrame.frameName);
     // Update the thumbnailURL based on the selectedFrame's frameId
-    const result = await Designs.findOneAndUpdate(
-      {
-        _id: id,
-        "sections.frames.frameId": selectedFrame.frameId,
-      },
-      {
-        $set: {
-          "sections.$.frames.$[elem].thumbnailURL": thumbnailURL,
+
+    const result = await cloudinary.uploader.upload(thumbnailURL, {
+      folder: "framework",
+      allowed_formats: ["jpg", "png", "gif", "webp", "jpeg"],
+      public_id: `${dateString}-${selectedFrame.sectionName}-${selectedFrame.frameName}`,
+    });
+    const cloudinaryUrl = result.secure_url;
+
+    if (archive) {
+      console.log("Salut je vais archiver", thumbnailURL, selectedFrame);
+      const updatedDesign = await Designs.findOneAndUpdate(
+        {
+          _id: id,
+          "sections.frames.frameId": selectedFrame.frameId,
         },
-      },
-      {
-        arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
-        new: true, // Return the updated document
-      }
-    );
+        {
+          $set: {
+            "sections.$.frames.$[elem].thumbnailURL": cloudinaryUrl,
+          },
+          $push: {
+            "sections.$.frames.$[elem].archiveURL": cloudinaryUrl,
+          },
+        },
+        {
+          arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+          new: true, // Return the updated document
+        }
+      );
+    } else {
+      console.log("no archive");
+      const updatedDesign = await Designs.findOneAndUpdate(
+        {
+          _id: id,
+          "sections.frames.frameId": selectedFrame.frameId,
+        },
+        {
+          $set: {
+            "sections.$.frames.$[elem].thumbnailURL": cloudinaryUrl,
+          },
+        },
+        {
+          arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+          new: true, // Return the updated document
+        }
+      );
+    }
 
     if (result) {
-      console.log("ThumbnailURL updated successfully:", result);
+      console.log("ThumbnailURL updated successfully:");
       res.json({
         message: "ThumbnailURL updated successfully",
         design: result,
