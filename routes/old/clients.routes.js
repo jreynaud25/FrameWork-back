@@ -11,15 +11,6 @@ const SENDMAIL = require("../config/mail");
 
 router.get("/", getAllClients);
 
-async function getAllClients(req, res, next) {
-  //console.log("getting all clients");
-  try {
-    const allClients = await Client.find({ status: { $ne: "admin" } });
-    res.json(allClients);
-  } catch (error) {
-    next(error);
-  }
-}
 
 router.get("/all", async (req, res, next) => {
   try {

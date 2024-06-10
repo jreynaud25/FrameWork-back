@@ -1,8 +1,7 @@
-async function isAdmin(req, res, next) {
+import { Request, Response, NextFunction} from 'express'
+
+export const isAdmin = async (req:Request, res:Response, next: NextFunction) => {
 	try {
-		console.log(req.user)
-		// res.send("working in isAdmin middleware")
-		console.log(req)
 		if (req.user.status === "admin") {
 			return next()
 		}
@@ -11,4 +10,3 @@ async function isAdmin(req, res, next) {
 		next(error)
 	}
 }
-module.exports = isAdmin

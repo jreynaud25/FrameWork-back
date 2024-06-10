@@ -119,7 +119,12 @@ router.post("/login", async (req, res, next) => {
       return res.status(400).json({ message: "Wrong credentials" });
     }
     //! This is where we setup what is going to be inside of the token
-    const payload = { username: foundUser.username, _id: foundUser._id };
+    const payload = {
+      username: foundUser.username,
+      _id: foundUser._id,
+      email: foundUser.email,
+      status: foundUser.status,
+    };
     const token = jwt.sign(payload, process.env.TOKEN_SECRET, {
       algorithm: "HS256",
       expiresIn: "7d",

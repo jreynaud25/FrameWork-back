@@ -1,21 +1,11 @@
-
+import { Router } from "express";
+import { RoutesInterface } from "../interfaces/route.interface";
+import { ClientRoutes } from "./client.routes";
+//import isAuthenticated from "../middlewares/isAuthenticated"
 export class Routes {
+  public readonly routes: RoutesInterface;
 
-    constructor(router: Router = new Router()){}
-
-    
+  constructor() {
+    this.routes = [...ClientRoutes];
+  }
 }
-
-router.get("/", (req, res) => {
-  res.json("We are live on /api.");
-});
-
-
-const ClientRoutes = require("./clients.routes.js");
-router.use("/client", ClientRoutes);
-router.use("/auth", require("./auth.routes.js"));
-router.use("/figma", require("./figma.routes.js"));
-router.use("/brand", require("./brand.routes.js"));
-router.use(isAuthenticated);
-
-router.use("/designs", require("./designs.routes.js"));
