@@ -1,9 +1,11 @@
+import { NextFunction, Request, Response } from 'express';
+
 export interface RouteInterface {
   method: HTTPMethods;
   path: string;
   controller: any;
   action: string;
-  middlewares?: any[];
+  middlewares?: Array<(req: Request, res: Response, next: NextFunction) => void>;
 }
 
 export interface CheckRouteInterface<T> {
@@ -18,9 +20,9 @@ export type RoutesInterface = RouteInterface[];
 export type CheckRoutesInterface<T> = CheckRouteInterface<T>[];
 
 export enum HTTPMethods {
-  GET = "get",
-  POST = "post",
-  PATCH = "patch",
-  PUT = "put",
-  DELETE = "delete",
+  GET = 'get',
+  POST = 'post',
+  PATCH = 'patch',
+  PUT = 'put',
+  DELETE = 'delete',
 }
