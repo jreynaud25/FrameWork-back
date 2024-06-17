@@ -1,40 +1,30 @@
-import { Schema, model, Document, Model } from "mongoose";
-import { IClient } from "../interfaces/client.interface";
+import { model, Schema } from 'mongoose';
 
-export class Client {
-    private clientModel: Model<IClient>
-    private clientSchema: Schema<IClient>
+const ClientSchema = new Schema({
+  username: {
+    required: true,
+    unique: true,
+    trim: true,
+    maxLength: 50,
+    type: String,
+  },
+  password: {
+    type: String,
+    select: false,
+  },
+  email: {
+    type: String,
+  },
+  pictureUrl: {
+    type: String,
+  },
+  status: {
+    type: String,
+    enum: ['Client', 'admin'],
+    default: 'Client',
+  },
+});
 
-    constructor(){
-        this.clientSchema = new Schema<IClient>({
-            username: {
-              type: String,
-              required: true,
-              unique: true,
-              trim: true,
-              maxLength: 50,
-            },
-            password: {
-              type: String,
-              select: false,
-            },
-            email: {
-              type: String,
-            },
-            pictureUrl: {
-              type: String,
-            },
-            status: {
-              type: String,
-              enum: ["Client", "admin"],
-              default: "Client",
-            },
-          });
+export const Client = model('Client', ClientSchema);
 
-        this.clientModel = model<IClient>("Client", this.clientSchema);
-    }
-
-    getClientModel() {
-        return this.clientModel
-    }
-}
+// module.exports = Client;

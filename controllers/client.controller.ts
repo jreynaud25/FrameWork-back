@@ -3,7 +3,7 @@ import { isValidObjectId } from 'mongoose';
 import { Client } from '../models/client.model';
 
 export class ClientController {
-  private clientRepository = new Client().getClientModel();
+  private clientRepository = Client;
 
   async getAllClients(_req: Request, res: Response, next: NextFunction) {
     try {

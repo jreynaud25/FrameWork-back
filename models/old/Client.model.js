@@ -1,4 +1,4 @@
-const { model, Schema } = require("mongoose");
+const { model, Schema } = require('mongoose');
 
 const ClientSchema = new Schema({
   username: {
@@ -20,11 +20,11 @@ const ClientSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["Client", "admin"],
-    default: "Client",
+    enum: ['Client', 'admin'],
+    default: 'Client',
   },
 });
 
-const Client = model("Client", ClientSchema);
+const Client = model('Client', ClientSchema);
 
 module.exports = Client;
