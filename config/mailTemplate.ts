@@ -1,6 +1,4 @@
-// an email template that can be used with Nodemailer to send emails
-
-const HTML_TEMPLATE = (text) => {
+export const HTML_TEMPLATE = (text) => {
   return `
   <html>
   <head>
@@ -80,5 +78,3 @@ const HTML_TEMPLATE = (text) => {
   
       `;
 };
-
-module.exports = HTML_TEMPLATE;

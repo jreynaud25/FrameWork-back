@@ -1,19 +1,16 @@
-import 'express';
 import * as jwt from 'jsonwebtoken';
-import { Client } from '../models/client.model';
-declare module 'express' {
+declare module 'express-serve-static-core'  {
   export interface Request {
-    user?: Client;
+    user: jwt.CustomJwtPayload
   }
 }
 
-// declare module 'jsonwebtoken' {
-//   export interface CustomJwtPayload extends jwt.JwtPayload {
-//     userId: number;
-//     firstname: string;
-//     lastname: string;
-//     email: string;
-//     firstname: string;
-//     lastname: string;
-//   }
-// }
+declare module 'jsonwebtoken' {
+  export interface CustomJwtPayload extends jwt.JwtPayload {
+    _id: string;
+    email: string;
+    status: string;
+    username: string;
+  }
+}
+

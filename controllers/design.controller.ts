@@ -31,10 +31,10 @@ export class DesignController {
     try {
       const foundUser = await this.clientRepository.find({ username: req.body.client });
       let pictureUrl;
-      if (req.file) {
-        pictureUrl = req.file.path;
+      if (req.body.file) {
+        pictureUrl = req.body.file.path;
       }
-      const textValuesArray = [];
+      // const textValuesArray:[] = [];
 
       const createdDesigns = await this.designRepository.create({
         name: req.body.name,

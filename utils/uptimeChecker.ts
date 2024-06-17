@@ -1,5 +1,5 @@
-const HTML_TEMPLATE = require('../config/mailTemplate');
-const SENDMAIL = require('../config/mail');
+import { SENDMAIL } from '../config/mail';
+import { HTML_TEMPLATE } from '../config/mailTemplate';
 
 let uptime = 0;
 
@@ -28,7 +28,7 @@ function checkIfDown() {
       html: HTML_TEMPLATE(message),
     };
     // console.log(options);
-    SENDMAIL(options, (info) => {
+    SENDMAIL(options, (info?: any) => {
       console.log('Email sent successfully');
       console.log('MESSAGE ID: ', info.messageId);
     });
@@ -47,7 +47,7 @@ function checkIfDown() {
       html: HTML_TEMPLATE(message),
     };
     // console.log(options);
-    SENDMAIL(options, (info) => {
+    SENDMAIL(options, (info?: any) => {
       console.log('Email sent successfully');
       console.log('MESSAGE ID: ', info.messageId);
     });
@@ -66,7 +66,7 @@ function checkIfDown() {
       html: HTML_TEMPLATE(message),
     };
     // console.log(options);
-    SENDMAIL(options, (info) => {
+    SENDMAIL(options, (info?: any) => {
       console.log('Email sent successfully');
       console.log('MESSAGE ID: ', info.messageId);
     });
@@ -86,7 +86,7 @@ function sendErrorEmail() {
     html: HTML_TEMPLATE(message),
   };
   // console.log(options);
-  SENDMAIL(options, (info) => {
+  SENDMAIL(options, (info?: any) => {
     console.log('Email sent successfully');
     console.log('MESSAGE ID: ', info.messageId);
   });

@@ -1,24 +1,23 @@
-import { NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import cloudinary from "cloudinary"
 
-const cloudinary = require('cloudinary').v2;
-
-cloudinary.config({
+cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_KEY,
   api_secret: process.env.CLOUDINARY_SECRET,
 });
 
+type IntImages = {imageName: {ids: [], url:string}}
 const uploadImagesToCloudinaryForBrand = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { images } = req.body;
+    const { images }: { images: IntImages } = req.body;
     for (const [imageName, imageData] of Object.entries(images)) {
-      const { ids, url } = imageData;
-      const result = await cloudinary.uploader.upload(url, {
+      const result = await cloudinary.v2.uploader.upload(imageData.url, {
         folder: 'framework',
         allowed_formats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
         public_id: imageName, // You can set the public_id here if needed
       });
-      images[imageName].url = result.secure_url;
+      imageData.url = result.secure_url;
     }
     next();
   } catch (error) {

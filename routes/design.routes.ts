@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { DesignController } from '../controllers/design.controller';
 import { CheckRoutesInterface, HTTPMethods } from '../interfaces/route.interface';
 import { isAuthenticated } from '../middlewares/isAuthenticated';
-const uploader = require("../config/cloudinary");
+const uploader = require('../config/cloudinary');
 
 const designController = new DesignController();
 
@@ -27,6 +27,6 @@ export const DesignRoutes: CheckRoutesInterface<DesignController> = [
     path: '/api/design/',
     controller: designController,
     action: 'createDesign',
-    middlewares: [uploader.single('picture')],
+    middlewares: [],
   },
 ];
