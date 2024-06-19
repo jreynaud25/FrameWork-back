@@ -1,5 +1,5 @@
+import cloudinary from 'cloudinary';
 import { NextFunction, Request, Response } from 'express';
-import cloudinary from "cloudinary"
 
 cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -7,8 +7,8 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_SECRET,
 });
 
-type IntImages = {imageName: {ids: [], url:string}}
-const uploadImagesToCloudinaryForBrand = async (req: Request, res: Response, next: NextFunction) => {
+type IntImages = { imageName: { ids: []; url: string } };
+export const uploadImagesToCloudinaryForBrand = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { images }: { images: IntImages } = req.body;
     for (const [imageName, imageData] of Object.entries(images)) {
@@ -22,8 +22,7 @@ const uploadImagesToCloudinaryForBrand = async (req: Request, res: Response, nex
     next();
   } catch (error) {
     console.error('Error uploading images to Cloudinary:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
+    // res.status(500).json({ error: 'Internal server error' });
   }
 };
-
-module.exports = uploadImagesToCloudinaryForBrand;
