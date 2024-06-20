@@ -1,14 +1,14 @@
 import cloudinary from 'cloudinary';
 import { NextFunction, Request, Response } from 'express';
 
-cloudinary.v2.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET,
-});
-
 type IntImages = { imageName: { ids: []; url: string } };
 export const uploadImagesToCloudinaryForBrand = async (req: Request, res: Response, next: NextFunction) => {
+  console.log('Salut, je vais upload sur cloudinary');
+  cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET,
+  });
   try {
     const { images }: { images: IntImages } = req.body;
     for (const [imageName, imageData] of Object.entries(images)) {

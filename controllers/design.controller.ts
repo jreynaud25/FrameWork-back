@@ -6,6 +6,7 @@ export class DesignController {
   private designRepository = Design;
   private clientRepository = Client;
   async getAllDesigns() {
+    console.log('get all design');
     try {
       return await this.designRepository.find();
     } catch (error) {
@@ -17,10 +18,9 @@ export class DesignController {
   async getOwnedDesign(req: Request, res: Response, next: NextFunction) {
     //console.log("user asking ", req.user);
     try {
-      const allDesigns = await this.designRepository.find({
+      return await this.designRepository.find({
         $or: [{ usedBy: req.user._id }, { creator: req.user._id }],
       });
-      res.json(allDesigns);
     } catch (error) {
       next(error);
     }
@@ -48,7 +48,7 @@ export class DesignController {
         textValues: Array.apply(null, Array(parseInt(req.body.numberOfTextEntries))),
       });
 
-      res.status(201).json(createdDesigns);
+      return createdDesigns;
     } catch (error) {
       next(error);
     }
