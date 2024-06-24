@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Client } from '../models/client.model';
-import { Design } from '../models/design.figma.model';
+import { Design } from '../models/design.model';
 
 export class DesignController {
   private designRepository = Design;

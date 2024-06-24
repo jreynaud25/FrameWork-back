@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose';
 
 const imageSchema = new Schema({
   figmaName: String,
@@ -13,5 +13,4 @@ const imageSchema = new Schema({
   },
 });
 
-export const image = model("Image", imageSchema);
-
+export const Image = model('Image', imageSchema);
