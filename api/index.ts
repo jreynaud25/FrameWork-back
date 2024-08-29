@@ -24,7 +24,7 @@ mongoose
   .catch((error) => {
     console.log(error.message);
   });
-//app.get('/ro', isAuthenticated, (req, res, next) => res.send('cocuou'));
+
 routes.forEach((route: RouteInterface) => {
   const { method, path, action, controller, middlewares } = route;
   app[method](
@@ -37,7 +37,7 @@ routes.forEach((route: RouteInterface) => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await controller[action](req, res, next);
-        res.status(200).json({ data: result });
+        // res.status(200).json({ data: result });
       } catch (error) {
         next(error);
       }
@@ -49,18 +49,23 @@ app.use('*', (_req: Request, res: Response, _next: NextFunction) => {
   res.status(404).json({ message: "That's a 404 right here..." });
 });
 
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.log(err);
-  if (err.name === 'CastError') {
+app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.log('je suis le error handler', error.name);
+  //console.log(err);
+  if (error.name === 'CastError' || error.name === 'ValidationError') {
     return res.status(400).json({
       message: 'Cast error',
       details: 'Make sure you are sending correct information',
     });
   }
-  if (err.name === 'TokenExpiredError') {
+  if (error.name === 'TokenExpiredError') {
     return res.status(401).json({ message: 'Token expired' });
   }
-  res.status(500).json({ error: err, message: err.message });
+  if (false) {
+    return res.status(400).json({ message: 'ValidationError' });
+  }
+
+  res.status(500).json({ error: error, message: error.message });
 });
 
 app.listen(process.env.PORT, () => console.log(`Server running on http://localhost:${process.env.PORT}`));

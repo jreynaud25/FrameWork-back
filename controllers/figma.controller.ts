@@ -40,42 +40,42 @@ export class FigmaController {
       });
     }
   }
-  async createGuidelines(req: Request, res: Response) {
+  async createGuidelines(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('Received data from frontend:', req.body);
-
-      // Check if an element with the same figmaid exists
       const existingElement = await Brand.findOne({
         FigmaId: req.body.FigmaId,
       });
-
       if (existingElement) {
-        // If an element with the same figmaid exists, update its data
         await Brand.updateOne({ FigmaId: req.body.FigmaId }, req.body);
         console.log('Updated existing element with figmaid:', req.body.FigmaId);
       } else {
-        // If not, create a new element with the provided data
         await Brand.create(req.body);
         console.log('Created new element with figmaid:', req.body.FigmaId);
       }
-
-      res.json({ success: true, message: 'Data processed successfully' });
-    } catch (error) {
-      console.error('An error occurred while processing data:', error);
-      res.status(500).json({ success: false, message: 'Internal server error' });
+      return { success: true, message: 'Data processed successfully' };
+    } catch (error: unknown) {
+      next(error); // Pass the error to the centralized error handler
     }
   }
 
-  async getChange(req: Request, res: Response) {
-    // console.log('Get Change');
+  async getChange(req: Request, res: Response, next: NextFunction) {
+    console.log('Get Change');
     const { id } = req.params;
     try {
       const oneDesign = await Design.findOne({ FigmaFileKey: id });
-      return oneDesign ? oneDesign : { message: 'Design not found' };
+      //console.log('oneDesign', oneDesign);
+      if (oneDesign) {
+        console.log('Design found');
+        res.json(oneDesign);
+      } else {
+        console.log('Design not found');
+        res.status(404).json({ message: 'Design not found' });
+      }
     } catch (error) {
       console.error('Error while retrieving the change:', error);
       //sendErrorEmail();
-      return { message: 'Internal server error' };
+      next(error);
     }
   }
   async changeApplied(req: Request, res: Response) {
@@ -86,10 +86,10 @@ export class FigmaController {
         { FigmaFileKey: id },
         { hasChanged: false, isOkToDownload: true }
       );
-      return oneDesign;
+      res.json(oneDesign);
     } catch (error) {
       console.log('erreur', error);
-      return { message: 'Internal server error' };
+      res.json({ message: 'Internal server error' });
     }
   }
 
