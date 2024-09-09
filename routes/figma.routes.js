@@ -12,12 +12,13 @@ const HTML_TEMPLATE = require("../config/mailTemplate");
 const SENDMAIL = require("../config/mail");
 const uploadImagesToCloudinaryForBrand = require("../middlewares/uploadImagesToCloudinaryForBrand");
 
+
 // UPTIME
 
 let uptime = 0;
 
 function increaseUptime() {
-  //uptime++;
+  uptime++;
   if (uptime != 0 && uptime % 10 == 0) {
     console.log("10seconds without request from plugin");
   }
@@ -25,6 +26,7 @@ function increaseUptime() {
   setTimeout(increaseUptime, 1000);
 }
 increaseUptime();
+
 
 function checkIfDown() {
   if (uptime == 60) {
@@ -134,7 +136,6 @@ router.post("/:id/changeApplied", async (req, res) => {
 });
 
 router.get("/:id/change", async (req, res) => {
-  // console.log("Someone is trying to retrieve the change");
   const { id } = req.params;
   uptime = 0;
 
@@ -189,6 +190,7 @@ router.post(
   }
 );
 
+
 router.post("/update", async (req, res) => {
   console.log("Route pour creer depuis plugin", req.body);
   console.log("le figma file key", req.body.FigmaFileKey);
@@ -239,6 +241,7 @@ router.post("/createBrand", async (req, res) => {
       FigmaId: req.body.FigmaId,
     });
 
+
     if (existingElement) {
       // If an element with the same figmaid exists, update its data
       await Element.updateOne({ FigmaId: req.body.FigmaId }, req.body);
@@ -256,7 +259,9 @@ router.post("/createBrand", async (req, res) => {
   }
 });
 
+
 router.post("/:figmaId/gettingImagesURL",uploadImagesToCloudinaryForBrand, async (req, res) => {
+
   const { figmaId } = req.params;
 
   try {
@@ -318,4 +323,5 @@ router.post("/uploadImgURL", async (req, res, next) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
 module.exports = router;

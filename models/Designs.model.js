@@ -6,7 +6,7 @@ const frameSchema = new Schema({
   frameName: String,
   frameId: String,
   thumbnailURL: String,
-  archiveURL: Array
+  archiveURL: Array,
 });
 
 const variableAndImagesSchema = new Schema({

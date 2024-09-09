@@ -5,6 +5,7 @@ const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 const cloudinary = require("cloudinary").v2;
 
+
 const HTML_TEMPLATE = require("../config/mailTemplate");
 const SENDMAIL = require("../config/mail");
 
@@ -12,7 +13,6 @@ router.get("/all", async (req, res, next) => {
   //console.log("admin asking all desings", req.user);
   try {
     const allDesigns = await Designs.find();
-    //console.log(allDesigns);
     res.json(allDesigns);
   } catch (error) {
     next(error);
@@ -34,7 +34,6 @@ router.get("/owned", async (req, res, next) => {
 // We receive the infos of the design in the req.body, and the id in the params.
 
 router.post("/", uploader.single("picture"), async (req, res, next) => {
-  //console.log("Le body du req", req.body);
   try {
     const foundUser = await Client.find({ username: req.body.client });
     let pictureUrl;
@@ -164,6 +163,32 @@ router.post("/:id", async (req, res, next) => {
 
     if (result) {
       console.log("ThumbnailURL updated successfully:");
+
+router.post("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { thumbnailURL, selectedFrame } = req.body;
+    console.log("Bonjour, ", thumbnailURL, selectedFrame);
+    // Update the thumbnailURL based on the selectedFrame's frameId
+    const result = await Designs.findOneAndUpdate(
+      {
+        _id: id,
+        "sections.frames.frameId": selectedFrame.frameId,
+      },
+      {
+        $set: {
+          "sections.$.frames.$[elem].thumbnailURL": thumbnailURL,
+        },
+      },
+      {
+        arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+        new: true, // Return the updated document
+      }
+    );
+
+    if (result) {
+      console.log("ThumbnailURL updated successfully:", result);
+
       res.json({
         message: "ThumbnailURL updated successfully",
         design: result,
@@ -234,14 +259,13 @@ router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
       { new: true }
     );
     // console.log(updatedDesign);
-    //console.log("the body", req.body, "the param", req.params);
+
 
     let numberOfTry = 0;
     async function checkIsChangeDone() {
       const isDesignEditionDone = await Designs.findById(id);
 
       if (isDesignEditionDone.isOkToDownload) {
-        //console.log("you can download", isDesignEditionDone);
         await Designs.findByIdAndUpdate(id, { isOkToDownload: false });
         res.json(isDesignEditionDone);
       } else {

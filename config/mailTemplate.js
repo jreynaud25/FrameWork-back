@@ -77,7 +77,6 @@ const HTML_TEMPLATE = (text) => {
     </div>
   </body>
 </html>
-  
       `;
 };
 
