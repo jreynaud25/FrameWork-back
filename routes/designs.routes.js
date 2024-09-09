@@ -163,6 +163,11 @@ router.post("/:id", async (req, res, next) => {
 
     if (result) {
       console.log("ThumbnailURL updated successfully:");
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.post("/:id", async (req, res, next) => {
   try {
