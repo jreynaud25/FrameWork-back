@@ -9,9 +9,6 @@ const SENDMAIL = require("../config/mail");
  * ! This router is prefixed with /Client
  */
 
-// Let's crud it
-//! Read
-
 router.get("/", getAllClients);
 
 async function getAllClients(req, res, next) {

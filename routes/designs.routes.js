@@ -3,6 +3,8 @@ const Designs = require("../models/Designs.model");
 const Client = require("../models/Client.model");
 const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/isAuthenticated");
+const cloudinary = require("cloudinary").v2;
+
 
 const HTML_TEMPLATE = require("../config/mailTemplate");
 const SENDMAIL = require("../config/mail");
@@ -11,7 +13,6 @@ router.get("/all", async (req, res, next) => {
   //console.log("admin asking all desings", req.user);
   try {
     const allDesigns = await Designs.find();
-    console.log(allDesigns);
     res.json(allDesigns);
   } catch (error) {
     next(error);
@@ -33,20 +34,12 @@ router.get("/owned", async (req, res, next) => {
 // We receive the infos of the design in the req.body, and the id in the params.
 
 router.post("/", uploader.single("picture"), async (req, res, next) => {
-  console.log("Le body du req", req.body);
   try {
     const foundUser = await Client.find({ username: req.body.client });
     let pictureUrl;
     if (req.file) {
       pictureUrl = req.file.path;
     }
-
-    console.log(
-      "bonjoru le default text on va verfier ton type",
-      req.body.defaultText,
-      typeof req.body.defaultText
-    );
-    // const textValuesArray = req.body.defaultText.split(",");
     const textValuesArray = [];
 
     const createdDesigns = await Designs.create({
@@ -84,6 +77,93 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+router.patch("/:id/archiveURL", async (req, res) => {
+  const { id } = req.params;
+  const { selectedFrame, archiveURL } = req.body;
+
+  console.log("salut je vais supprimer", archiveURL, selectedFrame, id);
+  const updatedDesign = await Designs.findOneAndUpdate(
+    {
+      _id: id,
+      "sections.frames.frameId": selectedFrame.frameId,
+    },
+    {
+      $pull: {
+        "sections.$.frames.$[elem].archiveURL": archiveURL,
+      },
+    },
+    {
+      arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+      new: true, // Return the updated document
+    }
+  );
+
+  //console.log("Kikou", updatedDesign);
+  res.json("salut");
+});
+
+router.post("/:id", async (req, res, next) => {
+  const currentDate = new Date();
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  let dateString = currentDate.toLocaleDateString("en-US", options); // Convert date to string in ISO format
+  dateString = dateString.replace(/\//g, "-");
+
+  try {
+    const { id } = req.params;
+    const { thumbnailURL, selectedFrame, archive } = req.body;
+    console.log("Bonjour, ", thumbnailURL, selectedFrame);
+    console.log("selected", selectedFrame.sectionName, selectedFrame.frameName);
+    // Update the thumbnailURL based on the selectedFrame's frameId
+
+    const result = await cloudinary.uploader.upload(thumbnailURL, {
+      folder: "framework",
+      allowed_formats: ["jpg", "png", "gif", "webp", "jpeg"],
+      public_id: `${dateString}-${selectedFrame.sectionName}-${selectedFrame.frameName}`,
+    });
+    const cloudinaryUrl = result.secure_url;
+
+    if (archive) {
+      console.log("Salut je vais archiver", thumbnailURL, selectedFrame);
+      const updatedDesign = await Designs.findOneAndUpdate(
+        {
+          _id: id,
+          "sections.frames.frameId": selectedFrame.frameId,
+        },
+        {
+          $set: {
+            "sections.$.frames.$[elem].thumbnailURL": cloudinaryUrl,
+          },
+          $push: {
+            "sections.$.frames.$[elem].archiveURL": cloudinaryUrl,
+          },
+        },
+        {
+          arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+          new: true, // Return the updated document
+        }
+      );
+    } else {
+      console.log("no archive");
+      const updatedDesign = await Designs.findOneAndUpdate(
+        {
+          _id: id,
+          "sections.frames.frameId": selectedFrame.frameId,
+        },
+        {
+          $set: {
+            "sections.$.frames.$[elem].thumbnailURL": cloudinaryUrl,
+          },
+        },
+        {
+          arrayFilters: [{ "elem.frameId": selectedFrame.frameId }],
+          new: true, // Return the updated document
+        }
+      );
+    }
+
+    if (result) {
+      console.log("ThumbnailURL updated successfully:");
+
 router.post("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -108,6 +188,7 @@ router.post("/:id", async (req, res, next) => {
 
     if (result) {
       console.log("ThumbnailURL updated successfully:", result);
+
       res.json({
         message: "ThumbnailURL updated successfully",
         design: result,
@@ -128,14 +209,14 @@ router.post("/:id", async (req, res, next) => {
 
 router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
   console.log("i received a patch", req.body.newText[0]);
-
+  console.log("req.files", req.files);
   const newTextArray = JSON.parse(req.body.newText);
 
-  console.log("Check the type of", typeof newTextArray);
-  console.log(newTextArray);
+  //console.log("Check the type of", typeof newTextArray);
+  //console.log(newTextArray);
   newTextArray.forEach((item) => {
     // Access the data in each item
-    console.log(item);
+    //console.log(item);
   });
 
   try {
@@ -178,14 +259,13 @@ router.patch("/:id", uploader.array("pictures"), async (req, res, next) => {
       { new: true }
     );
     // console.log(updatedDesign);
-    console.log("the body", req.body, "the param", req.params);
+
 
     let numberOfTry = 0;
     async function checkIsChangeDone() {
       const isDesignEditionDone = await Designs.findById(id);
 
       if (isDesignEditionDone.isOkToDownload) {
-        console.log("you can download", isDesignEditionDone);
         await Designs.findByIdAndUpdate(id, { isOkToDownload: false });
         res.json(isDesignEditionDone);
       } else {
